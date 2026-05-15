@@ -1,0 +1,30 @@
+<!-- REGISTER MODAL -->
+    <div id="registerModal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-close">&times;</div>
+            <h2>Create account</h2>
+            <div class="modal-sub">Start matching with compatible roommates</div>
+            <div id="registerError" class="error-message"></div>
+            <form id="registerForm" class="modal-form">
+                <div class="input-group">
+                    <label>Full name</label>
+                    <input type="text" placeholder="Alex Johnson" required>
+                </div>
+                <div class="input-group">
+                    <label>Email</label>
+                    <input type="email" placeholder="alex@example.com" required>
+                </div>
+                <div class="input-group">
+                    <label>Password</label>
+                    <div style="position: relative;">
+                        <input type="password" id="regPassword" placeholder="Create a strong password" required>
+                        <i class="far fa-eye password-toggle" onclick="togglePassword('regPassword', this)"></i>
+                    </div>
+                </div>
+                <button type="submit" class="modal-btn">Sign up →</button>
+            </form>
+            <div class="modal-footer">
+                Already have an account? <a id="switchToLogin">Log in</a>
+            </div>
+        </div>
+    </div>

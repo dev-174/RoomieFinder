@@ -1,0 +1,26 @@
+<!-- LOGIN MODAL -->
+    <div id="loginModal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-close">&times;</div>
+            <h2>Welcome back</h2>
+            <div class="modal-sub">Log in to find your perfect roomie</div>
+            <div id="loginError" class="error-message"></div>
+            <form id="loginForm" class="modal-form">
+                <div class="input-group">
+                    <label>Email</label>
+                    <input type="email" placeholder="you@example.com" required>
+                </div>
+                <div class="input-group">
+                    <label>Password</label>
+                    <div style="position: relative;">
+                        <input type="password" id="logPassword" placeholder="Enter your password" required>
+                        <i class="far fa-eye password-toggle" onclick="togglePassword('logPassword', this)"></i>
+                    </div>
+                </div>
+                <button type="submit" class="modal-btn">Log in →</button>
+            </form>
+            <div class="modal-footer">
+                Don't have an account? <a id="switchToRegister">Sign up</a>
+            </div>
+        </div>
+    </div>
