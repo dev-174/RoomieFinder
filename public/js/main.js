@@ -58,8 +58,8 @@ function confirmDelete() {
   // ----- MODAL CONTROLS -----
 const loginModal = document.getElementById('loginModal');
 const registerModal = document.getElementById('registerModal');
-const loginBtn = document.querySelector('.nav-auth .nav-cta:first-child');
-const signupBtn = document.querySelector('.nav-auth .nav-cta:last-child');
+const loginBtn = document.getElementById('openLogin');
+const signupBtn = document.getElementById('openRegister');
 
 function openModal(modal) {
   if (!modal) return;
@@ -127,24 +127,6 @@ if (switchToLogin) {
   });
 }
 
-// ----- FORM HANDLERS (demo / replace with your backend) -----
-document.getElementById('loginForm')?.addEventListener('submit', (e) => {
-  e.preventDefault();
-  const email = e.target.querySelector('input[type="email"]').value;
-  const password = e.target.querySelector('input[type="password"]').value;
-  // TODO: send to your backend
-  console.log('Login attempt', { email, password });
-
-});
-
-document.getElementById('registerForm')?.addEventListener('submit', (e) => {
-  e.preventDefault();
-  const name = e.target.querySelector('input[type="text"]').value;
-  const email = e.target.querySelector('input[type="email"]').value;
-  const password = e.target.querySelector('input[type="password"]').value;
-  // TODO: send to your backend
-  console.log('Register attempt', { name, email, password });
-});
 function togglePassword(inputId, iconElement) {
   const input = document.getElementById(inputId);
   
@@ -157,4 +139,9 @@ function togglePassword(inputId, iconElement) {
     iconElement.classList.remove("fa-eye-slash");
     iconElement.classList.add("fa-eye");
   }
+}
+const params = new URLSearchParams(window.location.search);
+
+if (params.get('login') === 'true') {
+    loginModal.classList.add('active');
 }
