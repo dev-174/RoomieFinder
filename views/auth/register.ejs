@@ -5,19 +5,19 @@
             <h2>Create account</h2>
             <div class="modal-sub">Start matching with compatible roommates</div>
             <div id="registerError" class="error-message"></div>
-            <form id="registerForm" class="modal-form">
+            <form action="/register" id="registerForm" class="modal-form" method="post">
                 <div class="input-group">
                     <label>Full name</label>
-                    <input type="text" placeholder="Alex Johnson" required>
+                    <input type="text" name="fname" placeholder="Alex Johnson" required>
                 </div>
                 <div class="input-group">
                     <label>Email</label>
-                    <input type="email" placeholder="alex@example.com" required>
+                    <input type="email" name="email" placeholder="alex@example.com" required>
                 </div>
                 <div class="input-group">
                     <label>Password</label>
                     <div style="position: relative;">
-                        <input type="password" id="regPassword" placeholder="Create a strong password" required>
+                        <input type="password" name="pass" id="regPassword" placeholder="Create a strong password" required>
                         <i class="far fa-eye password-toggle" onclick="togglePassword('regPassword', this)"></i>
                     </div>
                 </div>
