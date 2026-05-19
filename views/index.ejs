@@ -30,9 +30,25 @@
             <li><a href="#reviews">Reviews</a></li>
         </ul>
         <div class="nav-auth">
-            <button class="nav-cta">Log in →</button>
-            <button class="nav-cta">Sign up →</button>
-        </div>
+
+    <% if(user) { %>
+
+        <span style="color:white; margin-right:15px;">
+            Hi, <%= user.fullname %>
+        </span>
+
+        <a href="/logout">
+            <button class="nav-cta">Logout →</button>
+        </a>
+
+    <% } else { %>
+
+        <button class="nav-cta" id="openLogin">Log in →</button>
+        <button class="nav-cta" id="openRegister">Sign up →</button>
+        
+    <% } %>
+
+</div>
     </nav>
 
     <!-- HERO -->
