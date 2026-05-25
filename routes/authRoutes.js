@@ -67,12 +67,12 @@ router.post('/login', async (req, res) => {
 
         // session
         req.session.user = {
-            id: user.user_id,
+            id: user.id,
             fullname: user.full_name,
             email: user.email
         };
 
-        res.redirect('/');
+        res.redirect('/dashboard');
 
     } catch (err) {
 
