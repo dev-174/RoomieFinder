@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | RoomieFinder</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/dashboard.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+</head>
+
+<body>
+    <nav>
+        <div class="logo">
+            <div class="logo-dot"></div>
+            Roomie<span>Finder</span>
+        </div>
+        <ul class="nav-links">
+            <li><a href="/dashboard">Dashboard</a></li>
+            <li><a href="/listings">Listings</a></li>
+        </ul>
+        <div class="nav-auth">
+            <a href="/logout"><button class="nav-cta">Logout →</button></a>
+        </div>
+    </nav>
+
+    <div class="dashboard-container">
+        <div class="dashboard-wrapper">
+            <div class="welcome-card">
+                <h1>Welcome back, <span><%= user.full_name %></span> 👋</h1>
+                <p>Find your perfect roomie or list your available space</p>
+                <div class="action-links">
+                    <% if(!hasActiveListing) { %>
+                        <a href="/listings/new" class="action-link">+ Post a Listing</a>
+                    <% } %>
+                    <a href="/listings" class="action-link">Browse Listings</a>
+                </div>
+                <% if(hasActiveListing) { %>
+                    <div style="margin-top: 12px; font-size: 0.85rem; color: var(--lime);">
+                        <i class="fas fa-info-circle"></i> You already have an active listing. Only one listing allowed per user.
+                    </div>
+                <% } %>
+            </div>
+
+            <div class="dashboard-grid">
+                <!-- My Listings Section -->
+                <div class="dashboard-card">
+                    <h3><i class="fas fa-home"></i> My Listing</h3>
+                    <% if(myListings && myListings.length > 0) { %>
+                        <% myListings.forEach(function(listing) { %>
+                            <div class="my-listing-details">
+                                <div class="listing-item" data-id="<%= listing.id %>">
+                                    <div style="flex: 1;">
+                                        <div class="listing-title"><%= listing.title %></div>
+                                        <div class="listing-location">
+                                            <i class="fas fa-map-marker-alt"></i> <%= listing.city %>, <%= listing.area || 'N/A' %>
+                                        </div>
+                                        <div class="listing-occupants">
+                                            <i class="fas fa-users"></i> Current Occupants: <%= listing.current_occupants || 0 %> / <%= listing.occupancy || 1 %>
+                                        </div>
+                                        <div class="listing-rent">
+                                            <i class="fas fa-rupee-sign"></i> ₹<%= listing.rent %>/month
+                                        </div>
+                                        <div class="listing-status">
+                                            <i class="fas fa-flag"></i> Status: 
+                                            <span style="color: <%= listing.status === 'active' ? 'var(--lime)' : '#ff6b6b' %>">
+                                                <%= listing.status %>
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <div class="listing-actions">
+                                        <button class="edit-listing-btn" data-id="<%= listing.id %>">
+                                            <i class="fas fa-edit"></i> Edit
+                                        </button>
+                                        <button class="delete-listing-btn" data-id="<%= listing.id %>">
+                                            <i class="fas fa-trash"></i> Delete
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <!-- Join Requests Section -->
+                                <div class="join-requests-section">
+                                    <h4><i class="fas fa-user-plus"></i> Join Requests (<span class="requests-count">0</span>)</h4>
+                                    <div class="requests-list">
+                                        <div class="loading-requests">Loading requests...</div>
+                                    </div>
+                                </div>
+                            </div>
+                        <% }); %>
+                    <% } else { %>
+                        <div class="empty-state">
+                            <i class="fas fa-home"></i>
+                            <p>No active listing</p>
+                            <% if(!hasActiveListing) { %>
+                                <a href="/listings/new" class="btn-sm">Create Your First Listing →</a>
+                            <% } %>
+                        </div>
+                    <% } %>
+                </div>
+
+                <!-- Saved Listings -->
+                <div class="dashboard-card">
+                    <h3><i class="fas fa-heart"></i> Saved Listings</h3>
+                    <% if(savedListings && savedListings.length > 0) { %>
+                        <% savedListings.forEach(function(listing) { %>
+                            <div class="listing-item" data-id="<%= listing.id %>">
+                                <div style="flex: 1;">
+                                    <div class="listing-title"><%= listing.title %></div>
+                                    <div class="listing-location"><%= listing.city %>, <%= listing.area || 'N/A' %></div>
+                                    <div class="listing-rent">₹<%= listing.rent %>/month</div>
+                                    <div class="listing-occupancy">
+                                        <i class="fas fa-users"></i> Space for <%= listing.occupancy || 1 %>
+                                    </div>
+                                </div>
+                                <div class="saved-actions">
+                                    <button class="request-join-btn" data-id="<%= listing.id %>">Request to Join</button>
+                                    <button class="unsave-btn" data-id="<%= listing.id %>">Remove</button>
+                                </div>
+                            </div>
+                        <% }); %>
+                    <% } else { %>
+                        <div class="empty-state">
+                            <i class="fas fa-heart-broken"></i>
+                            <p>No saved listings</p>
+                        </div>
+                    <% } %>
+                </div>
+
+                <!-- Recent Matches -->
+                <div class="dashboard-card">
+                    <h3><i class="fas fa-users"></i> Recent Matches</h3>
+                    <% if(matches && matches.length > 0) { %>
+                        <% matches.forEach(function(match) { %>
+                            <div class="match-item" data-id="<%= match.id %>">
+                                <div>
+                                    <div class="match-name"><%= match.full_name %></div>
+                                    <div class="match-location"><%= match.city %></div>
+                                    <div class="match-details">
+                                        <% if(match.profession) { %>
+                                            <i class="fas fa-briefcase"></i> <%= match.profession %>
+                                        <% } %>
+                                    </div>
+                                </div>
+                                <div class="match-score"><%= match.score %>%</div>
+                            </div>
+                        <% }); %>
+                    <% } else { %>
+                        <div class="empty-state">
+                            <i class="fas fa-user-friends"></i>
+                            <p>No matches yet</p>
+                            <a href="/profile/edit" class="btn-sm">Complete Profile →</a>
+                        </div>
+                    <% } %>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Modal -->
+    <!-- Edit Modal -->
+<div id="editModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2 style="margin-bottom: 20px; padding-right: 20px;">Edit Listing</h2>
+        <form id="editListingForm">
+            <input type="hidden" id="editListingId">
+            <div class="form-group">
+                <label>Title *</label>
+                <input type="text" id="editTitle" required placeholder="e.g., Spacious 2BHK Available">
+            </div>
+            <div class="form-group">
+                <label>Description</label>
+                <textarea id="editDescription" rows="3" placeholder="Describe the room, amenities, preferences..."></textarea>
+            </div>
+            <div class="form-group">
+                <label>City *</label>
+                <input type="text" id="editCity" required placeholder="e.g., Mumbai">
+            </div>
+            <div class="form-group">
+                <label>Area</label>
+                <input type="text" id="editArea" placeholder="e.g., Andheri West">
+            </div>
+            <div class="form-group">
+                <label>Rent (₹/month) *</label>
+                <input type="number" id="editRent" required placeholder="e.g., 15000">
+            </div>
+            <div class="form-group">
+                <label>Available From</label>
+                <input type="date" id="editAvailableFrom">
+            </div>
+            <div class="form-group">
+                <label>Current Occupants</label>
+                <input type="number" id="editCurrentOccupants" min="0" placeholder="0">
+            </div>
+            <div class="form-group">
+                <label>Total Occupancy (Max people)</label>
+                <input type="number" id="editOccupancy" min="1" required placeholder="e.g., 3">
+            </div>
+            <div class="form-group">
+                <label>Furnished</label>
+                <select id="editFurnished">
+                    <option value="false">No</option>
+                    <option value="true">Yes</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Gender Preference</label>
+                <select id="editGenderPreference">
+                    <option value="">Any</option>
+                    <option value="male">Male Only</option>
+                    <option value="female">Female Only</option>
+                </select>
+            </div>
+            <button type="submit" class="btn-sm">Update Listing →</button>
+        </form>
+    </div>
+</div>
+
+    <footer>
+        <div class="logo" style="font-size:1.1rem">
+            <div class="logo-dot"></div>
+            Roomie<span>Finder</span>
+        </div>
+        <div class="footer-copy">© 2025 Roomie Finder</div>
+    </footer>
+
+    <script src="/js/dashboard.js"></script>
+</body>
+
+</html>
