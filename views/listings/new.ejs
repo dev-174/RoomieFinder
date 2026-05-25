@@ -1,0 +1,629 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Post a Listing | RoomieFinder</title>
+    <link
+        href="https://font-googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <style>
+        /* Dark Theme Form Styles */
+        .form-page {
+            background: var(--bg, #0d0f14);
+            min-height: calc(100vh - 70px);
+            padding-bottom: 100px;
+        }
+
+        .form-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+        }
+
+        .form-header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text, #f0f2f5);
+            margin-bottom: 0.5rem;
+        }
+
+        .form-header h1 span {
+            color: var(--lime, #c8f04a);
+        }
+
+        .form-header p {
+            color: var(--muted, #7a8394);
+        }
+
+        .form-card {
+            background: var(--card, #13161e);
+            border-radius: 24px;
+            padding: 1.75rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--border, rgba(255, 255, 255, 0.07));
+        }
+
+        .card-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--border, rgba(255, 255, 255, 0.07));
+        }
+
+        .card-title i {
+            font-size: 1.3rem;
+            color: var(--lime, #c8f04a);
+        }
+
+        .card-title h2 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text, #f0f2f5);
+            margin: 0;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--muted, #7a8394);
+            margin-bottom: 0.5rem;
+        }
+
+        .form-group label .required {
+            color: #ef4444;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border, rgba(255, 255, 255, 0.07));
+            border-radius: 14px;
+            font-size: 0.9rem;
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg, #0d0f14);
+            color: var(--text, #f0f2f5);
+            transition: all 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--lime, #c8f04a);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .char-counter {
+            text-align: right;
+            font-size: 0.7rem;
+            color: var(--muted, #7a8394);
+            margin-top: 0.3rem;
+        }
+
+        .checkbox-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0.5rem 0;
+        }
+
+        .checkbox-wrapper input {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .checkbox-wrapper label {
+            margin: 0;
+            cursor: pointer;
+            color: var(--text, #f0f2f5);
+        }
+
+        .upload-zone {
+            border: 2px dashed var(--border, rgba(255, 255, 255, 0.07));
+            border-radius: 20px;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: var(--bg, #0d0f14);
+        }
+
+        .upload-zone:hover {
+            border-color: var(--lime, #c8f04a);
+            background: rgba(200, 240, 74, 0.05);
+        }
+
+        .upload-zone i {
+            font-size: 2.5rem;
+            color: var(--muted, #7a8394);
+        }
+
+        .upload-zone p {
+            color: var(--muted, #7a8394);
+        }
+
+        .image-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 1rem;
+        }
+
+        .image-preview-card {
+            position: relative;
+            width: 100px;
+            height: 100px;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 1px solid var(--border, rgba(255, 255, 255, 0.07));
+        }
+
+        .image-preview-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .remove-img-btn {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            cursor: pointer;
+        }
+
+        .remove-img-btn:hover {
+            background: #ef4444;
+        }
+
+        .error-msg {
+            color: #ef4444;
+            font-size: 0.7rem;
+            margin-top: 0.3rem;
+            display: none;
+        }
+
+        .error-msg.show {
+            display: block;
+        }
+
+        input.error,
+        select.error,
+        textarea.error {
+            border-color: #ef4444 !important;
+        }
+
+        .sticky-actions {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--card, #13161e);
+            padding: 1rem 1.5rem;
+            border-top: 1px solid var(--border, rgba(255, 255, 255, 0.07));
+            z-index: 100;
+        }
+
+        .sticky-actions .actions-wrapper {
+            max-width: 900px;
+            margin: 0 auto;
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn-primary {
+            background: var(--lime, #c8f04a);
+            color: #0d0f14;
+            padding: 0.9rem;
+            border-radius: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            flex: 1;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text, #f0f2f5);
+            padding: 0.9rem;
+            border-radius: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1px solid var(--border, rgba(255, 255, 255, 0.07));
+            flex: 1;
+        }
+
+        .btn-primary:hover {
+            background: var(--lime2, #a8d930);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        .form-spacer {
+            height: 80px;
+        }
+
+        @media (max-width: 640px) {
+            .form-container {
+                padding: 1rem;
+            }
+
+            .form-card {
+                padding: 1.25rem;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+                gap: 0;
+            }
+
+            .sticky-actions .actions-wrapper {
+                gap: 0.75rem;
+            }
+
+            .image-preview-card {
+                width: 75px;
+                height: 75px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav>
+        <div class="logo">
+            <div class="logo-dot"></div>
+            Roomie<span>Finder</span>
+        </div>
+        <ul class="nav-links">
+            <li><a href="/dashboard">Dashboard</a></li>
+            <li><a href="/listings">Listings</a></li>
+        </ul>
+        <div class="nav-auth">
+            <span style="color:white; margin-right:15px;">Hi, <%= user ? user.fullname || user.name : 'Guest' %></span>
+            <a href="/logout"><button class="nav-cta">Logout →</button></a>
+        </div>
+    </nav>
+
+    <div class="form-page">
+        <div class="form-container">
+            <div class="form-header">
+                <h1>🏠 List your space on <span>RoomieFinder</span></h1>
+                <p>Fill in the details below to find your perfect roommate</p>
+            </div>
+
+            <form id="listingForm" action="/api/listings" method="POST" enctype="multipart/form-data">
+                <!-- Basic Information Card -->
+                <div class="form-card">
+                    <div class="card-title">
+                        <i class="fas fa-info-circle"></i>
+                        <h2>Basic Information</h2>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Listing Type <span class="required">*</span></label>
+                        <select name="listing_type" id="listing_type" required>
+                            <option value="">Select type</option>
+                            <option value="Room">🏠 Room</option>
+                            <option value="Flat">🏢 Flat</option>
+                            <option value="PG">🏘️ PG</option>
+                            <option value="Shared Room">👥 Shared Room</option>
+                        </select>
+                        <div class="error-msg" id="error_listing_type">Please select listing type</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Title <span class="required">*</span></label>
+                        <input type="text" name="title" id="title" placeholder="e.g., Cozy 2BHK with Modern Amenities"
+                            maxlength="100" required>
+                        <div class="char-counter" id="titleCounter">0/100</div>
+                        <div class="error-msg" id="error_title">Title is required</div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Description <span class="required">*</span></label>
+                        <textarea name="description" id="description" rows="5"
+                            placeholder="Describe your property - amenities, nearby places, transport, rules, etc."
+                            maxlength="2000" required></textarea>
+                        <div class="char-counter" id="descCounter">0/2000</div>
+                        <div class="error-msg" id="error_description">Description is required</div>
+                    </div>
+                </div>
+
+                <!-- Location Details Card -->
+                <div class="form-card">
+                    <div class="card-title">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <h2>Location Details</h2>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>City <span class="required">*</span></label>
+                            <input type="text" name="city" id="city" placeholder="e.g., Ahmedabad" required>
+                            <div class="error-msg" id="error_city">City is required</div>
+                        </div>
+                        <div class="form-group">
+                            <label>Area / Locality <span class="required">*</span></label>
+                            <input type="text" name="area" id="area" placeholder="e.g., Satellite, Prahlad Nagar"
+                                required>
+                            <div class="error-msg" id="error_area">Area is required</div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Complete Address</label>
+                        <input type="text" name="address" id="address"
+                            placeholder="Street address, building name, landmark (optional)">
+                    </div>
+                </div>
+
+                <!-- Room Details Card -->
+                <div class="form-card">
+                    <div class="card-title">
+                        <i class="fas fa-bed"></i>
+                        <h2>Room Details</h2>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Rent (₹/month) <span class="required">*</span></label>
+                            <input type="number" name="rent" id="rent" placeholder="e.g., 15000" required>
+                            <div class="error-msg" id="error_rent">Rent is required</div>
+                        </div>
+                        <div class="form-group">
+                            <label>Occupancy <span class="required">*</span></label>
+                            <select name="occupancy" id="occupancy" required>
+                                <option value="">Select occupancy</option>
+                                <option value="1">Single Person</option>
+                                <option value="2">Double Sharing</option>
+                                <option value="3">Triple Sharing</option>
+                                <option value="4">Shared (4+)</option>
+                            </select>
+                            <div class="error-msg" id="error_occupancy">Occupancy is required</div>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <div class="checkbox-wrapper">
+                                <input type="checkbox" name="furnished" id="furnished">
+                                <label for="furnished">🛋️ Fully Furnished</label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label>Gender Preference</label>
+                            <select name="gender_preference" id="gender_preference">
+                                <option value="Anyone">👥 Anyone</option>
+                                <option value="Male">👨 Male Only</option>
+                                <option value="Female">👩 Female Only</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Available From <span class="required">*</span></label>
+                        <input type="date" name="available_from" id="available_from" required>
+                        <div class="error-msg" id="error_available_from">Please select available date</div>
+                    </div>
+                </div>
+
+                <!-- Images Upload Card -->
+                <div class="form-card">
+                    <div class="card-title">
+                        <i class="fas fa-images"></i>
+                        <h2>Listing Images</h2>
+                    </div>
+
+                    <div class="upload-zone" id="uploadZone">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p>📸 Drag & drop images here or click to upload</p>
+                        <small>Supports JPG, PNG, GIF · Max 5MB each · Up to 10 images</small>
+                        <input type="file" id="imageInput" accept="image/*" multiple style="display: none;">
+                    </div>
+                    <div class="image-grid" id="imageGrid"></div>
+                </div>
+
+                <div class="form-spacer"></div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Sticky Submit Button -->
+    <div class="sticky-actions">
+        <div class="actions-wrapper">
+            <button type="submit" class="btn-primary" id="submitBtn">
+                <i class="fas fa-paper-plane"></i> Post Listing →
+            </button>
+        </div>
+    </div>
+
+    <footer>
+        <div class="logo" style="font-size:1.1rem">
+            <div class="logo-dot"></div>
+            Roomie<span>Finder</span>
+        </div>
+        <div class="footer-copy">© 2025 Roomie Finder</div>
+    </footer>
+
+    <script>
+        // ========== CHARACTER COUNTERS ==========
+        const titleInput = document.getElementById('title');
+        const titleCounter = document.getElementById('titleCounter');
+        const descInput = document.getElementById('description');
+        const descCounter = document.getElementById('descCounter');
+
+        titleInput.addEventListener('input', () => {
+            const len = titleInput.value.length;
+            titleCounter.textContent = `${len}/100`;
+            if (len > 90) titleCounter.classList.add('warning');
+            else titleCounter.classList.remove('warning');
+        });
+
+        descInput.addEventListener('input', () => {
+            const len = descInput.value.length;
+            descCounter.textContent = `${len}/2000`;
+            if (len > 1800) descCounter.classList.add('warning');
+            if (len > 1950) descCounter.classList.add('danger');
+            else {
+                descCounter.classList.remove('danger');
+                if (len <= 1800) descCounter.classList.remove('warning');
+            }
+        });
+
+        // ========== IMAGE UPLOAD ==========
+        const uploadZone = document.getElementById('uploadZone');
+        const imageInput = document.getElementById('imageInput');
+        const imageGrid = document.getElementById('imageGrid');
+        let selectedImages = [];
+
+        uploadZone.addEventListener('click', () => imageInput.click());
+
+        uploadZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadZone.classList.add('drag-over');
+        });
+
+        uploadZone.addEventListener('dragleave', () => {
+            uploadZone.classList.remove('drag-over');
+        });
+
+        uploadZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadZone.classList.remove('drag-over');
+            const files = Array.from(e.dataTransfer.files);
+            handleImageFiles(files);
+        });
+
+        imageInput.addEventListener('change', (e) => {
+            const files = Array.from(e.target.files);
+            handleImageFiles(files);
+        });
+
+        function handleImageFiles(files) {
+            const imageFiles = files.filter(f => f.type.startsWith('image/'));
+
+            if (selectedImages.length + imageFiles.length > 10) {
+                alert('You can only upload up to 10 images');
+                return;
+            }
+
+            imageFiles.forEach(file => {
+                if (file.size > 5 * 1024 * 1024) {
+                    alert(`${file.name} exceeds 5MB limit`);
+                    return;
+                }
+                selectedImages.push(file);
+            });
+
+            updateImagePreview();
+        }
+
+        function updateImagePreview() {
+            imageGrid.innerHTML = '';
+            selectedImages.forEach((file, index) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const div = document.createElement('div');
+                    div.className = 'image-preview-card';
+                    div.innerHTML = `
+                    <img src="${e.target.result}" alt="Preview">
+                    <button type="button" class="remove-img-btn" data-index="${index}">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                    imageGrid.appendChild(div);
+
+                    div.querySelector('.remove-img-btn').addEventListener('click', () => {
+                        selectedImages.splice(index, 1);
+                        updateImagePreview();
+                    });
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        // ========== VALIDATION ==========
+        function validateForm() {
+            let isValid = true;
+            const required = ['listing_type', 'title', 'description', 'city', 'area', 'rent', 'occupancy', 'available_from'];
+
+            required.forEach(field => {
+                const input = document.getElementById(field);
+                const error = document.getElementById(`error_${field}`);
+                if (!input.value) {
+                    input.classList.add('error');
+                    if (error) error.classList.add('show');
+                    isValid = false;
+                } else {
+                    input.classList.remove('error');
+                    if (error) error.classList.remove('show');
+                }
+            });
+
+            return isValid;
+        }
+
+        // ========== FORM SUBMIT ==========
+        document.getElementById('submitBtn').addEventListener('click', async () => {
+            if (!validateForm()) {
+                alert('Please fill in all required fields');
+                return;
+            }
+
+            const formData = new FormData(document.getElementById('listingForm'));
+            selectedImages.forEach(file => {
+                formData.append('images', file);
+            });
+
+            try {
+                const res = await fetch('/api/listings', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await res.json();
+
+                if (res.ok) {
+                    alert('Listing created successfully!');
+                    window.location.href = '/dashboard';
+                } else {
+                    alert(data.message || 'Failed to create listing');
+                }
+
+            } catch (err) {
+                console.error(err);
+                alert('Error creating listing');
+            }
+        });
+        // ========== SET MIN DATE ==========
+        const today = new Date().toISOString().split('T')[0];
+        document.getElementById('available_from').min = today;
+    </script>
+
+</body>
+
+</html>
