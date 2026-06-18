@@ -268,3 +268,52 @@ document.querySelectorAll('.my-listing-details').forEach(container => {
         loadJoinRequests(listingId, container);
     }
 });
+document.querySelectorAll('.send-request-btn').forEach(button => {
+
+    button.addEventListener('click', async function () {
+
+        const listingId = this.dataset.id;
+
+        try {
+
+            const response = await fetch(`/send-request/${listingId}`, {
+                method: 'POST'
+            });
+
+            const data = await response.json();
+
+            alert(data.message);
+
+        } catch (error) {
+
+            console.error(error);
+            alert('Something went wrong');
+
+        }
+
+    });
+
+});
+// Count accepted requests
+ /*
+const acceptedCountResult = await client.query(
+    `SELECT COUNT(*) 
+     FROM roommate_requests
+     WHERE listing_id = $1
+     AND status = 'accepted'`,
+    [request.listing_id]
+);
+
+const acceptedCount = parseInt(acceptedCountResult.rows[0].count);
+
+// If room becomes full
+if (acceptedCount >= request.occupancy) {
+
+    await client.query(
+        `UPDATE listings
+         SET status = 'occupied'
+         WHERE id = $1`,
+        [request.listing_id]
+    );
+
+}*/
