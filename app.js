@@ -124,11 +124,11 @@ app.get('/api/listings/:id', async (req, res) => {
             'SELECT * FROM listings WHERE id = $1',
             [req.params.id]
         );
-        
+
         if (result.rows.length === 0) {
             return res.status(404).json({ error: 'Listing not found' });
         }
-        
+
         res.json(result.rows[0]);
     } catch (err) {
         console.error(err);
@@ -168,16 +168,17 @@ app.get('/listings/:id', async (req, res) => {
 app.get('/dashboard', authenticate, async (req, res) => {
     try {
         const userId = req.session.user.id;
-        
+
         // Check if user has active listing (status = 'active')
         const activeListingQuery = `
             SELECT id FROM listings 
-            WHERE owner_id = $1 AND status = 'active'
+            WHERE owner_id = $1
+            AND status IN ('active', 'occupied')
             LIMIT 1
         `;
         const activeListingResult = await db.query(activeListingQuery, [userId]);
         const hasActiveListing = activeListingResult.rows.length > 0;
-        
+
         // Get user's listings (only active ones)
         const listingsQuery = `
             SELECT l.*, 
@@ -188,7 +189,7 @@ app.get('/dashboard', authenticate, async (req, res) => {
         `;
         const listingsResult = await db.query(listingsQuery, [userId]);
         const myListings = listingsResult.rows;
-        
+
         // Get saved listings
         const savedQuery = `
             SELECT l.*, sl.id as saved_id
@@ -199,7 +200,24 @@ app.get('/dashboard', authenticate, async (req, res) => {
         `;
         const savedResult = await db.query(savedQuery, [userId]);
         const savedListings = savedResult.rows;
-        
+
+        // Get listings from OTHER users
+        const exploreListingsQuery = `
+    SELECT 
+        l.*,
+        u.full_name,
+        u.profession,
+        u.age
+    FROM listings l
+    JOIN users u ON l.owner_id = u.id
+    WHERE l.owner_id != $1
+      AND l.status = 'active'
+    ORDER BY l.created_at DESC
+`;
+
+        const exploreListingsResult = await db.query(exploreListingsQuery, [userId]);
+
+        const exploreListings = exploreListingsResult.rows;
         // Get potential matches (users looking for roommates)
         const matchesQuery = `
             SELECT u.id, u.full_name, u.city, u.profession, u.age,
@@ -212,31 +230,53 @@ app.get('/dashboard', authenticate, async (req, res) => {
             LIMIT 5
         `;
         const matchesResult = await db.query(matchesQuery, [userId]);
-        
+
         // Calculate match scores
         const userProfile = await db.query(
             `SELECT city, budget_min, budget_max FROM users WHERE id = $1`,
             [userId]
         );
-        
+
         const matches = matchesResult.rows.map(match => {
             let score = 70;
             if (userProfile.rows[0] && match.city === userProfile.rows[0].city) score += 10;
             return { ...match, score: Math.min(score, 99) };
         });
-        
+        // Add this inside the dashboard route, after the matches query
+        const myRequestsQuery = `
+    SELECT rr.id, rr.status, rr.created_at,
+           l.title as listing_title, l.city, l.rent, l.id as listing_id
+    FROM roommate_requests rr
+    JOIN listings l ON rr.listing_id = l.id
+    WHERE rr.sender_id = $1
+    ORDER BY rr.created_at DESC
+`;
+        const myRequestsResult = await db.query(myRequestsQuery, [userId]);
+        const myRequests = myRequestsResult.rows;
+        const sentRequestsResult = await db.query(
+            `SELECT listing_id, status FROM roommate_requests WHERE sender_id = $1`,
+            [userId]
+        );
+        const sentRequestsMap = {};
+        sentRequestsResult.rows.forEach(r => {
+            sentRequestsMap[r.listing_id] = r.status;
+        });
         // Get user info
         const userQuery = `SELECT id, full_name, email FROM users WHERE id = $1`;
         const userResult = await db.query(userQuery, [userId]);
-        
+
         res.render('dashboard', {
             user: userResult.rows[0],
             myListings: myListings,
             savedListings: savedListings,
+            exploreListings: exploreListings,
             matches: matches,
-            hasActiveListing: hasActiveListing
+            hasActiveListing: hasActiveListing,
+            myRequests: myRequests,
+            sentRequestsMap: sentRequestsMap
+
         });
-        
+
     } catch (error) {
         console.error('Dashboard error:', error);
         res.status(500).send('Server error');
@@ -257,35 +297,67 @@ app.delete('/api/saved/:listingId', async (req, res) => {
 app.post('/api/listings', authenticate, upload.array('images', 5), async (req, res) => {
     try {
         const userId = req.session.user.id;
-        
+
         // Check if user already has an active listing
         const existingListing = await db.query(
-            `SELECT id FROM listings WHERE owner_id = $1 AND status = 'active'`,
+            `SELECT id FROM listings WHERE owner_id = $1 AND status IN ('active', 'occupied')`,
             [userId]
         );
-        
+
         if (existingListing.rows.length > 0) {
-            return res.status(400).json({ 
-                error: 'You already have an active listing. Only one listing allowed per user.' 
+            return res.status(400).json({
+                error: 'You already have an active listing. Only one listing allowed per user.'
             });
         }
-        
         const {
             listing_type, title, description, rent, city, area, address,
             occupancy, furnished, gender_preference, available_from
         } = req.body;
-        
+
+        const occupancyValue = Math.max(1, parseInt(occupancy) || 1);
+
         const result = await db.query(
-            `INSERT INTO listings (owner_id, listing_type, title, description, rent, 
-             city, area, address, occupancy, furnished, gender_preference, available_from, status)
-             VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, 'active')
-             RETURNING *`,
-            [userId, listing_type, title, description, rent, city, area, address,
-             occupancy, furnished, gender_preference, available_from]
+            `INSERT INTO listings (
+        owner_id,
+        listing_type,
+        title,
+        description,
+        rent,
+        city,
+        area,
+        address,
+        occupancy,
+        current_occupants,
+        furnished,
+        gender_preference,
+        available_from,
+        status
+    )
+    VALUES (
+        $1, $2, $3, $4, $5,
+        $6, $7, $8, $9, $10,
+        $11, $12, $13, 'active'
+    )
+    RETURNING *`,
+            [
+                userId,
+                listing_type,
+                title,
+                description,
+                rent,
+                city,
+                area,
+                address,
+                occupancyValue,
+                1,
+                furnished,
+                gender_preference,
+                available_from
+            ]
         );
-        
+
         res.status(201).json(result.rows[0]);
-        
+
     } catch (error) {
         console.error('Create listing error:', error);
         res.status(500).json({ error: 'Error creating listing' });
@@ -297,26 +369,26 @@ app.put('/api/listings/:id', authenticate, async (req, res) => {
     try {
         const listingId = req.params.id;
         const userId = req.session.user.id;
-        
+
         // Verify ownership
         const listingCheck = await db.query(
             `SELECT owner_id FROM listings WHERE id = $1`,
             [listingId]
         );
-        
+
         if (listingCheck.rows.length === 0) {
             return res.status(404).json({ error: 'Listing not found' });
         }
-        
+
         if (listingCheck.rows[0].owner_id !== parseInt(userId)) {
             return res.status(403).json({ error: 'Unauthorized' });
         }
-        
+
         const {
             title, description, city, area, rent, available_from,
             occupancy, furnished, gender_preference
         } = req.body;
-        
+
         const result = await db.query(
             `UPDATE listings 
              SET title = $1, description = $2, city = $3, area = $4, 
@@ -325,12 +397,12 @@ app.put('/api/listings/:id', authenticate, async (req, res) => {
              WHERE id = $10 AND owner_id = $11
              RETURNING *`,
             [title, description, city, area, rent, available_from,
-             occupancy, furnished, gender_preference,
-             listingId, userId]
+                occupancy, furnished, gender_preference,
+                listingId, userId]
         );
-        
+
         res.json(result.rows[0]);
-        
+
     } catch (error) {
         console.error('Update listing error:', error);
         res.status(500).json({ error: 'Error updating listing' });
@@ -342,29 +414,29 @@ app.delete('/api/listings/:id', authenticate, async (req, res) => {
     try {
         const listingId = req.params.id;
         const userId = req.session.user.id;
-        
+
         // Verify ownership
         const listingCheck = await db.query(
             `SELECT owner_id FROM listings WHERE id = $1`,
             [listingId]
         );
-        
+
         if (listingCheck.rows.length === 0) {
             return res.status(404).json({ error: 'Listing not found' });
         }
-        
+
         if (listingCheck.rows[0].owner_id !== parseInt(userId)) {
             return res.status(403).json({ error: 'Unauthorized' });
         }
-        
+
         // Soft delete - set status to 'closed'
         await db.query(
-            `UPDATE listings SET status = 'closed' WHERE id = $1`,
+            `UPDATE listings SET status = 'deleted' WHERE id = $1`,
             [listingId]
         );
-        
+
         res.json({ message: 'Listing deleted successfully' });
-        
+
     } catch (error) {
         console.error('Delete listing error:', error);
         res.status(500).json({ error: 'Error deleting listing' });
@@ -377,39 +449,39 @@ app.post('/api/listings/:id/request', authenticate, async (req, res) => {
         const listingId = req.params.id;
         const senderId = req.session.user.id;
         const { message } = req.body;
-        
+
         // Check if listing exists and is active
         const listingCheck = await db.query(
             `SELECT owner_id, status, occupancy
              FROM listings WHERE id = $1`,
             [listingId]
         );
-        
+
         if (listingCheck.rows.length === 0) {
             return res.status(404).json({ error: 'Listing not found' });
         }
-        
+
         const listing = listingCheck.rows[0];
-        
+
         if (listing.status !== 'active') {
             return res.status(400).json({ error: 'Listing is not active' });
         }
-        
+
         if (listing.owner_id === senderId) {
             return res.status(400).json({ error: 'You cannot request your own listing' });
         }
-        
+
         // Check if already requested
         const existingRequest = await db.query(
             `SELECT id, status FROM roommate_requests 
              WHERE listing_id = $1 AND sender_id = $2 AND status != 'rejected'`,
             [listingId, senderId]
         );
-        
+
         if (existingRequest.rows.length > 0) {
             return res.status(400).json({ error: 'You have already requested to join this listing' });
         }
-        
+
         // Create request
         const result = await db.query(
             `INSERT INTO roommate_requests (listing_id, sender_id, message, status)
@@ -417,9 +489,9 @@ app.post('/api/listings/:id/request', authenticate, async (req, res) => {
              RETURNING *`,
             [listingId, senderId, message || null]
         );
-        
+
         res.status(201).json(result.rows[0]);
-        
+
     } catch (error) {
         console.error('Create request error:', error);
         res.status(500).json({ error: 'Error sending request' });
@@ -431,21 +503,21 @@ app.get('/api/listings/:id/requests', authenticate, async (req, res) => {
     try {
         const listingId = req.params.id;
         const userId = req.session.user.id;
-        
+
         // Verify ownership
         const listingCheck = await db.query(
             `SELECT owner_id FROM listings WHERE id = $1`,
             [listingId]
         );
-        
+
         if (listingCheck.rows.length === 0) {
             return res.status(404).json({ error: 'Listing not found' });
         }
-        
+
         if (listingCheck.rows[0].owner_id !== parseInt(userId)) {
             return res.status(403).json({ error: 'Unauthorized' });
         }
-        
+
         // Get pending requests with sender info
         const requests = await db.query(
             `SELECT rr.*, u.full_name as sender_name, u.age, u.profession
@@ -455,9 +527,9 @@ app.get('/api/listings/:id/requests', authenticate, async (req, res) => {
              ORDER BY rr.created_at DESC`,
             [listingId]
         );
-        
+
         res.json(requests.rows);
-        
+
     } catch (error) {
         console.error('Get requests error:', error);
         res.status(500).json({ error: 'Error loading requests' });
@@ -467,13 +539,13 @@ app.get('/api/listings/:id/requests', authenticate, async (req, res) => {
 // POST /api/join-requests/:id/accept - Accept a join request
 app.post('/api/join-requests/:id/accept', authenticate, async (req, res) => {
     const client = await db.connect();
-    
+
     try {
         const requestId = req.params.id;
         const userId = req.session.user.id;
-        
+
         await client.query('BEGIN');
-        
+
         // Get request details and verify ownership
         const requestQuery = await client.query(
             `SELECT rr.*, l.owner_id, l.id as listing_id, l.occupancy
@@ -482,48 +554,46 @@ app.post('/api/join-requests/:id/accept', authenticate, async (req, res) => {
              WHERE rr.id = $1`,
             [requestId]
         );
-        
+
         if (requestQuery.rows.length === 0) {
             await client.query('ROLLBACK');
             return res.status(404).json({ error: 'Request not found' });
         }
-        
+
         const request = requestQuery.rows[0];
-        
+
         if (request.owner_id !== parseInt(userId)) {
             await client.query('ROLLBACK');
             return res.status(403).json({ error: 'Unauthorized' });
         }
-        
+
         if (request.status !== 'pending') {
             await client.query('ROLLBACK');
             return res.status(400).json({ error: 'Request already processed' });
         }
-        
+
         // Update the accepted request
         await client.query(
             `UPDATE roommate_requests SET status = 'accepted' WHERE id = $1`,
             [requestId]
         );
-        
-        // Update listing status to 'occupied'
         await client.query(
-            `UPDATE listings SET status = 'occupied' WHERE id = $1`,
+            `UPDATE listings
+            SET current_occupants = current_occupants + 1
+            WHERE id = $1`,
             [request.listing_id]
         );
-        
-        // Reject all other pending requests for this listing
         await client.query(
             `UPDATE roommate_requests 
              SET status = 'rejected' 
              WHERE listing_id = $1 AND id != $2 AND status = 'pending'`,
             [request.listing_id, requestId]
         );
-        
+
         await client.query('COMMIT');
-        
+
         res.json({ message: 'Request accepted successfully' });
-        
+
     } catch (error) {
         await client.query('ROLLBACK');
         console.error('Accept request error:', error);
@@ -538,7 +608,7 @@ app.post('/api/join-requests/:id/reject', authenticate, async (req, res) => {
     try {
         const requestId = req.params.id;
         const userId = req.session.user.id;
-        
+
         // Get request details and verify ownership
         const requestQuery = await db.query(
             `SELECT rr.*, l.owner_id
@@ -547,32 +617,127 @@ app.post('/api/join-requests/:id/reject', authenticate, async (req, res) => {
              WHERE rr.id = $1`,
             [requestId]
         );
-        
+
         if (requestQuery.rows.length === 0) {
             return res.status(404).json({ error: 'Request not found' });
         }
-        
+
         const request = requestQuery.rows[0];
-        
+
         if (request.owner_id !== parseInt(userId)) {
             return res.status(403).json({ error: 'Unauthorized' });
         }
-        
+
         if (request.status !== 'pending') {
             return res.status(400).json({ error: 'Request already processed' });
         }
-        
+
         // Update request status to 'rejected'
         await db.query(
             `UPDATE roommate_requests SET status = 'rejected' WHERE id = $1`,
             [requestId]
         );
-        
+
         res.json({ message: 'Request rejected' });
-        
+
     } catch (error) {
         console.error('Reject request error:', error);
         res.status(500).json({ error: 'Error rejecting request' });
+    }
+});
+app.post('/send-request/:listingId', authenticate, async (req, res) => {
+
+    try {
+
+        const senderId = req.session.user.id;
+        const listingId = req.params.listingId;
+
+        const listingQuery = `
+            SELECT owner_id
+            FROM listings
+            WHERE id = $1
+        `;
+
+        const listingResult = await db.query(listingQuery, [listingId]);
+
+        if (listingResult.rows.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: 'Listing not found'
+            });
+        }
+
+        const receiverId = listingResult.rows[0].owner_id;
+
+        if (senderId == receiverId) {
+            return res.status(400).json({
+                success: false,
+                message: 'Cannot send request to yourself'
+            });
+        }
+
+        const existingQuery = `
+            SELECT *
+            FROM roommate_requests
+            WHERE sender_id = $1
+            AND listing_id = $2
+        `;
+
+        const existingResult = await db.query(existingQuery, [
+            senderId,
+            listingId
+        ]);
+
+        if (existingResult.rows.length > 0) {
+            return res.status(400).json({
+                success: false,
+                message: 'Request already sent'
+            });
+        }
+
+        await db.query(
+            `
+            INSERT INTO roommate_requests
+        (sender_id, listing_id, status)
+        VALUES ($1, $2, 'pending')
+            `,
+            [senderId, listingId]
+        );
+
+        res.json({
+            success: true,
+            message: 'Request sent successfully'
+        });
+
+    } catch (error) {
+
+        console.error(error);
+
+        res.status(500).json({
+            success: false,
+            message: 'Server error'
+        });
+    }
+});
+// GET /api/my-requests - Get status of requests sent by current user
+app.get('/api/my-requests', authenticate, async (req, res) => {
+    try {
+        const userId = req.session.user.id;
+
+        const result = await db.query(
+            `SELECT rr.id, rr.status, rr.created_at,
+                    l.title as listing_title, l.city, l.rent, l.id as listing_id
+             FROM roommate_requests rr
+             JOIN listings l ON rr.listing_id = l.id
+             WHERE rr.sender_id = $1
+             ORDER BY rr.created_at DESC`,
+            [userId]
+        );
+
+        res.json(result.rows);
+    } catch (error) {
+        console.error('My requests error:', error);
+        res.status(500).json({ error: 'Error fetching requests' });
     }
 });
 module.exports = app;
