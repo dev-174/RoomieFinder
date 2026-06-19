@@ -269,30 +269,26 @@ document.querySelectorAll('.my-listing-details').forEach(container => {
     }
 });
 document.querySelectorAll('.send-request-btn').forEach(button => {
-
     button.addEventListener('click', async function () {
-
         const listingId = this.dataset.id;
-
         try {
-
             const response = await fetch(`/send-request/${listingId}`, {
                 method: 'POST'
             });
-
             const data = await response.json();
 
-            alert(data.message);
-
+            if (response.ok) {
+                this.outerHTML = `<span style="color:#f0a500;font-size:0.85rem">
+                    <i class="fas fa-clock"></i> Pending
+                </span>`;
+            } else {
+                alert(data.message);
+            }
         } catch (error) {
-
             console.error(error);
             alert('Something went wrong');
-
         }
-
     });
-
 });
 // Count accepted requests
  /*
