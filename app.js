@@ -44,7 +44,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
 app.use(session({
-    secret: 'mysupersecret',
+    secret: process.env.SESSION_SECRET,
     resave: false,
     saveUninitialized: false
 }));
@@ -95,12 +95,26 @@ app.get('/register', (req, res) => {
 // ========== LISTINGS ROUTES ==========
 
 // All listings
-app.get('/listings', (req, res) => {
-    res.render('listings/index', {
-        title: 'All Listings',
-        currentPage: 'listings',
-        listings: []
-    });
+app.get('/listings', async (req, res) => {
+    try {
+        const result = await db.query(
+            `SELECT l.*, u.full_name, u.profession, u.age 
+             FROM listings l
+             JOIN users u ON l.owner_id = u.id
+             WHERE l.status = 'active'
+             ORDER BY l.created_at DESC`
+        );
+
+        res.render('listings/index', {
+            title: 'All Listings',
+            currentPage: 'listings',
+            listings: result.rows,
+            user: req.session.user || null
+        });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Server error');
+    }
 });
 
 // New listing form
@@ -680,7 +694,8 @@ app.post('/send-request/:listingId', authenticate, async (req, res) => {
             SELECT *
             FROM roommate_requests
             WHERE sender_id = $1
-            AND listing_id = $2
+            AND listing_id = $2,
+            AND status != 'rejected'
         `;
 
         const existingResult = await db.query(existingQuery, [
