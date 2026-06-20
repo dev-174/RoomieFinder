@@ -248,7 +248,34 @@ document.querySelectorAll('.unsave-btn').forEach(btn => {
         }
     });
 });
+// Leave room
+document.querySelectorAll('.leave-room-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+        const listingId = btn.getAttribute('data-listing-id');
 
+        if (!confirm('Are you sure you want to leave this room? You can request to join other rooms after leaving.')) {
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/listings/${listingId}/leave`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' }
+            });
+
+            if (response.ok) {
+                alert('You have left the room.');
+                window.location.reload();
+            } else {
+                const error = await response.json();
+                alert(error.error || 'Error leaving room');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error leaving room');
+        }
+    });
+});
 // Helper: escape HTML
 function escapeHtml(str) {
     if (!str) return '';
@@ -290,26 +317,3 @@ document.querySelectorAll('.send-request-btn').forEach(button => {
         }
     });
 });
-// Count accepted requests
- /*
-const acceptedCountResult = await client.query(
-    `SELECT COUNT(*) 
-     FROM roommate_requests
-     WHERE listing_id = $1
-     AND status = 'accepted'`,
-    [request.listing_id]
-);
-
-const acceptedCount = parseInt(acceptedCountResult.rows[0].count);
-
-// If room becomes full
-if (acceptedCount >= request.occupancy) {
-
-    await client.query(
-        `UPDATE listings
-         SET status = 'occupied'
-         WHERE id = $1`,
-        [request.listing_id]
-    );
-
-}*/
