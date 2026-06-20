@@ -268,7 +268,7 @@ app.get('/dashboard', authenticate, async (req, res) => {
         const myRequestsResult = await db.query(myRequestsQuery, [userId]);
         const myRequests = myRequestsResult.rows;
         const sentRequestsResult = await db.query(
-            `SELECT listing_id, status FROM roommate_requests WHERE sender_id = $1`,
+            `SELECT listing_id, status FROM roommate_requests WHERE sender_id = $1 ORDER BY id ASC`,
             [userId]
         );
         const sentRequestsMap = {};
@@ -488,7 +488,7 @@ app.post('/api/listings/:id/request', authenticate, async (req, res) => {
         // Check if already requested
         const existingRequest = await db.query(
             `SELECT id, status FROM roommate_requests 
-             WHERE listing_id = $1 AND sender_id = $2 AND status != 'rejected'`,
+     WHERE listing_id = $1 AND sender_id = $2 AND status NOT IN ('rejected', 'left')`,
             [listingId, senderId]
         );
 
@@ -591,16 +591,27 @@ app.post('/api/join-requests/:id/accept', authenticate, async (req, res) => {
             `UPDATE roommate_requests SET status = 'accepted' WHERE id = $1`,
             [requestId]
         );
-        await client.query(
+        const updatedListing = await client.query(
             `UPDATE listings
-            SET current_occupants = current_occupants + 1
-            WHERE id = $1`,
+    SET current_occupants = current_occupants + 1
+    WHERE id = $1
+    RETURNING current_occupants, occupancy`,
             [request.listing_id]
         );
+
+        // If the room is now full, flip status so it stops showing as active/joinable
+        const { current_occupants, occupancy } = updatedListing.rows[0];
+        if (current_occupants >= occupancy) {
+            await client.query(
+                `UPDATE listings SET status = 'occupied' WHERE id = $1`,
+                [request.listing_id]
+            );
+        }
+
         await client.query(
             `UPDATE roommate_requests 
-             SET status = 'rejected' 
-             WHERE listing_id = $1 AND id != $2 AND status = 'pending'`,
+     SET status = 'rejected' 
+     WHERE listing_id = $1 AND id != $2 AND status = 'pending'`,
             [request.listing_id, requestId]
         );
 
@@ -616,7 +627,86 @@ app.post('/api/join-requests/:id/accept', authenticate, async (req, res) => {
         client.release();
     }
 });
+// POST /api/listings/:id/leave - Leave a room you previously joined
+app.post('/api/listings/:id/leave', authenticate, async (req, res) => {
+    const client = await db.connect();
 
+    try {
+        const listingId = req.params.id;
+        const userId = req.session.user.id;
+
+        await client.query('BEGIN');
+
+        // Lock the listing row so a concurrent accept/leave can't race us
+        const listingResult = await client.query(
+            `SELECT id, owner_id, occupancy, current_occupants, status
+             FROM listings WHERE id = $1 FOR UPDATE`,
+            [listingId]
+        );
+
+        if (listingResult.rows.length === 0) {
+            await client.query('ROLLBACK');
+            return res.status(404).json({ error: 'Listing not found' });
+        }
+
+        const listing = listingResult.rows[0];
+
+        if (listing.owner_id === parseInt(userId)) {
+            await client.query('ROLLBACK');
+            return res.status(400).json({ error: 'Owners cannot leave their own listing. Delete the listing instead.' });
+        }
+
+        // Find this user's accepted membership in this listing
+        const requestResult = await client.query(
+            `SELECT id FROM roommate_requests
+             WHERE listing_id = $1 AND sender_id = $2 AND status = 'accepted'
+             FOR UPDATE`,
+            [listingId, userId]
+        );
+
+        if (requestResult.rows.length === 0) {
+            await client.query('ROLLBACK');
+            return res.status(400).json({ error: 'You are not currently a roommate in this listing' });
+        }
+
+        const requestId = requestResult.rows[0].id;
+
+        // 1 & 3: remove him from the room / change his request status
+        await client.query(
+            `UPDATE roommate_requests SET status = 'left' WHERE id = $1`,
+            [requestId]
+        );
+
+        // 2: decrease occupancy (never below 0)
+        const newOccupants = Math.max(0, listing.current_occupants - 1);
+        await client.query(
+            `UPDATE listings SET current_occupants = $1 WHERE id = $2`,
+            [newOccupants, listingId]
+        );
+
+        // 5: if listing was full, reopen it so others can request again
+        if (listing.status === 'occupied') {
+            await client.query(
+                `UPDATE listings SET status = 'active' WHERE id = $1`,
+                [listingId]
+            );
+        }
+
+        await client.query('COMMIT');
+
+        // 4: allow sending requests again - handled automatically since the
+        // existing-request checks elsewhere exclude status = 'left'
+
+        res.json({ message: 'You have left the room successfully' });
+
+    } catch (error) {
+        await client.query('ROLLBACK');
+        console.error('Leave room error:', error);
+        res.status(500).json({ error: 'Error leaving room' });
+    } finally {
+        client.release();
+    }
+});
 // POST /api/join-requests/:id/reject - Reject a join request
 app.post('/api/join-requests/:id/reject', authenticate, async (req, res) => {
     try {
@@ -691,12 +781,12 @@ app.post('/send-request/:listingId', authenticate, async (req, res) => {
         }
 
         const existingQuery = `
-            SELECT *
-            FROM roommate_requests
-            WHERE sender_id = $1
-            AND listing_id = $2,
-            AND status != 'rejected'
-        `;
+    SELECT *
+    FROM roommate_requests
+    WHERE sender_id = $1
+    AND listing_id = $2
+    AND status NOT IN ('rejected', 'left')
+`;
 
         const existingResult = await db.query(existingQuery, [
             senderId,
