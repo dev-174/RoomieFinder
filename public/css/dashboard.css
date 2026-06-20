@@ -160,7 +160,21 @@
     color: white;
     border-color: #ff6b6b;
 }
+.leave-room-btn {
+    background: transparent;
+    border: 1px solid #ff6b6b;
+    color: #ff6b6b;
+    padding: 6px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+}
 
+.leave-room-btn:hover {
+    background: #ff6b6b;
+    color: white;
+}
 /* Join Requests Section */
 .join-requests-section {
     margin-top: 20px;
