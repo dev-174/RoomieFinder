@@ -176,8 +176,6 @@ app.get('/listings/:id', async (req, res) => {
 });
 // Dashboard route
 // Dashboard route - add this BEFORE your other routes
-// Dashboard route
-// Dashboard route - GET /dashboard
 // Dashboard route - GET /dashboard
 app.get('/dashboard', authenticate, async (req, res) => {
     try {
@@ -275,19 +273,33 @@ app.get('/dashboard', authenticate, async (req, res) => {
         sentRequestsResult.rows.forEach(r => {
             sentRequestsMap[r.listing_id] = r.status;
         });
-        // Get user info
-        const userQuery = `SELECT id, full_name, email FROM users WHERE id = $1`;
+        // Get user info (includes profile fields to check completeness + show avatar in nav)
+        const userQuery = `SELECT id, full_name, email, profile_photo, age, gender, workplace,
+                                   profession, city, budget_min, budget_max
+                            FROM users WHERE id = $1`;
         const userResult = await db.query(userQuery, [userId]);
+        const currentUser = userResult.rows[0];
+
+        // Profile is "complete" once the key fields owners actually care about are filled
+        const profileComplete = !!(
+            currentUser.age &&
+            currentUser.gender &&
+            (currentUser.workplace || currentUser.profession) &&
+            currentUser.city &&
+            currentUser.budget_min &&
+            currentUser.budget_max
+        );
 
         res.render('dashboard', {
-            user: userResult.rows[0],
+            user: currentUser,
             myListings: myListings,
             savedListings: savedListings,
             exploreListings: exploreListings,
             matches: matches,
             hasActiveListing: hasActiveListing,
             myRequests: myRequests,
-            sentRequestsMap: sentRequestsMap
+            sentRequestsMap: sentRequestsMap,
+            profileComplete: profileComplete
 
         });
 
@@ -296,6 +308,120 @@ app.get('/dashboard', authenticate, async (req, res) => {
         res.status(500).send('Server error');
     }
 });
+// ========== PROFILE ROUTES ==========
+
+// GET /profile/edit - Edit profile form (own profile)
+app.get('/profile/edit', authenticate, async (req, res) => {
+    try {
+        const userId = req.session.user.id;
+        const result = await db.query('SELECT * FROM users WHERE id = $1', [userId]);
+
+        if (result.rows.length === 0) {
+            return res.status(404).send('User not found');
+        }
+
+        res.render('profile/edit', {
+            title: 'Edit Profile',
+            currentPage: 'profile',
+            profile: result.rows[0]
+        });
+    } catch (err) {
+        console.error('Profile edit page error:', err);
+        res.status(500).send('Server error');
+    }
+});
+
+// POST /api/profile - Update own profile (with optional profile photo upload)
+app.post('/api/profile', authenticate, upload.single('profile_photo'), async (req, res) => {
+    try {
+        const userId = req.session.user.id;
+        const {
+            full_name, age, gender, workplace, profession, bio,
+            city, area, budget_min, budget_max,
+            smoker, pets_friendly, veg, sleep_schedule,
+            cleanliness_level, looking_for_roommate
+        } = req.body;
+
+        const photoPath = req.file ? `/uploads/${req.file.filename}` : null;
+
+        const result = await db.query(
+            `UPDATE users SET
+                full_name = COALESCE($1, full_name),
+                age = $2,
+                gender = $3,
+                workplace = $4,
+                profession = $5,
+                bio = $6,
+                city = $7,
+                area = $8,
+                budget_min = $9,
+                budget_max = $10,
+                smoker = $11,
+                pets_friendly = $12,
+                veg = $13,
+                sleep_schedule = $14,
+                cleanliness_level = $15,
+                looking_for_roommate = $16,
+                profile_photo = COALESCE($17, profile_photo)
+             WHERE id = $18
+             RETURNING id, full_name, email, profile_photo`,
+            [
+                full_name || null,
+                age ? parseInt(age) : null,
+                gender || null,
+                workplace || null,
+                profession || null,
+                bio || null,
+                city || null,
+                area || null,
+                budget_min ? parseInt(budget_min) : null,
+                budget_max ? parseInt(budget_max) : null,
+                smoker === 'true',
+                pets_friendly === 'true',
+                veg === 'true',
+                sleep_schedule || null,
+                cleanliness_level || null,
+                looking_for_roommate !== 'false', // checkbox absent = unchecked, treat as explicit false only when sent
+                photoPath,
+                userId
+            ]
+        );
+
+        // Keep the session display name in sync (used in the nav greeting)
+        req.session.user.fullname = result.rows[0].full_name;
+
+        res.json({ message: 'Profile updated successfully', profile: result.rows[0] });
+
+    } catch (err) {
+        console.error('Update profile error:', err);
+        res.status(500).json({ error: 'Error updating profile' });
+    }
+});
+
+// GET /api/users/:id - Fetch another user's public profile
+// Used by the "View Profile" modal so a room owner can actually see who's
+// requesting to join before they accept/reject, instead of just a name.
+app.get('/api/users/:id', authenticate, async (req, res) => {
+    try {
+        const result = await db.query(
+            `SELECT id, full_name, profile_photo, age, gender, workplace, profession,
+                    bio, city, area, budget_min, budget_max, smoker, pets_friendly,
+                    veg, sleep_schedule, cleanliness_level, looking_for_roommate
+             FROM users WHERE id = $1`,
+            [req.params.id]
+        );
+
+        if (result.rows.length === 0) {
+            return res.status(404).json({ error: 'User not found' });
+        }
+
+        res.json(result.rows[0]);
+    } catch (err) {
+        console.error('Get user profile error:', err);
+        res.status(500).json({ error: 'Error loading profile' });
+    }
+});
+
 // DELETE /api/saved/:listingId
 app.delete('/api/saved/:listingId', async (req, res) => {
     const userId = req.session.user.id;
@@ -532,9 +658,11 @@ app.get('/api/listings/:id/requests', authenticate, async (req, res) => {
             return res.status(403).json({ error: 'Unauthorized' });
         }
 
-        // Get pending requests with sender info
+        // Get pending requests with sender info (profile fields included so the
+        // owner gets a real preview, not just a name, before accepting/rejecting)
         const requests = await db.query(
-            `SELECT rr.*, u.full_name as sender_name, u.age, u.profession
+            `SELECT rr.*, u.full_name as sender_name, u.age, u.profession,
+                    u.profile_photo, u.gender, u.workplace
              FROM roommate_requests rr
              JOIN users u ON rr.sender_id = u.id
              WHERE rr.listing_id = $1 AND rr.status = 'pending'

@@ -22,6 +22,7 @@
         <ul class="nav-links">
             <li><a href="/dashboard">Dashboard</a></li>
             <li><a href="/listings">Listings</a></li>
+            <li><a href="/profile/edit">My Profile</a></li>
         </ul>
         <div class="nav-auth">
             <a href="/logout"><button class="nav-cta">Logout →</button></a>
@@ -47,6 +48,17 @@
                         per user.
                     </div>
                     <% } %>
+                        <% if(!profileComplete) { %>
+                            <div
+                                style="margin-top: 16px; background: rgba(200,240,74,0.08); border: 1px solid rgba(200,240,74,0.25); border-radius: 14px; padding: 14px 18px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+                                <span style="font-size: 0.85rem; color: var(--text);">
+                                    <i class="fas fa-user-circle" style="color: var(--lime); margin-right: 6px;"></i>
+                                    Your profile is incomplete — room owners can't properly evaluate your join
+                                    requests without it.
+                                </span>
+                                <a href="/profile/edit" class="btn-sm">Complete Profile →</a>
+                            </div>
+                            <% } %>
             </div>
 
             <div class="dashboard-grid">
@@ -276,7 +288,6 @@
     </div>
 
     <!-- Edit Modal -->
-    <!-- Edit Modal -->
     <div id="editModal" class="modal">
         <div class="modal-content">
             <span class="close">&times;</span>
@@ -329,6 +340,16 @@
                 </div>
                 <button type="submit" class="btn-sm">Update Listing →</button>
             </form>
+        </div>
+    </div>
+
+    <!-- Profile View Modal - lets an owner see a requester's full profile -->
+    <div id="profileModal" class="modal">
+        <div class="modal-content profile-modal-content">
+            <span class="close" id="profileModalClose">&times;</span>
+            <div id="profileModalBody">
+                <!-- Populated by dashboard.js -->
+            </div>
         </div>
     </div>
     <!-- My Requests Section -->
