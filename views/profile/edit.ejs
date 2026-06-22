@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Edit Profile | RoomieFinder</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <style>
+        /* Same dark-theme form language as the "Post a Listing" page */
+        .form-page {
+            background: var(--bg, #0d0f14);
+            min-height: calc(100vh - 70px);
+            padding-bottom: 100px;
+        }
+
+        .form-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 2rem 1.5rem;
+        }
+
+        .form-header h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--text, #f0f2f5);
+            margin-bottom: 0.5rem;
+        }
+
+        .form-header h1 span {
+            color: var(--lime, #c8f04a);
+        }
+
+        .form-header p {
+            color: var(--muted, #7a8394);
+        }
+
+        .form-card {
+            background: var(--card, #13161e);
+            border-radius: 24px;
+            padding: 1.75rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--border, rgba(255, 255, 255, 0.07));
+        }
+
+        .card-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.75rem;
+            border-bottom: 1px solid var(--border, rgba(255, 255, 255, 0.07));
+        }
+
+        .card-title i {
+            font-size: 1.3rem;
+            color: var(--lime, #c8f04a);
+        }
+
+        .card-title h2 {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--text, #f0f2f5);
+            margin: 0;
+        }
+
+        .form-group {
+            margin-bottom: 1.1rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--muted, #7a8394);
+            margin-bottom: 0.5rem;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid var(--border, rgba(255, 255, 255, 0.07));
+            border-radius: 14px;
+            font-size: 0.9rem;
+            font-family: 'DM Sans', sans-serif;
+            background: var(--bg, #0d0f14);
+            color: var(--text, #f0f2f5);
+            transition: all 0.2s;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: var(--lime, #c8f04a);
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .form-row-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .char-counter {
+            text-align: right;
+            font-size: 0.7rem;
+            color: var(--muted, #7a8394);
+            margin-top: 0.3rem;
+        }
+
+        .checkbox-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 0.5rem 0;
+        }
+
+        .checkbox-wrapper input {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .checkbox-wrapper label {
+            margin: 0;
+            cursor: pointer;
+            color: var(--text, #f0f2f5);
+        }
+
+        .lifestyle-toggles {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem 1.5rem;
+        }
+
+        /* Avatar upload */
+        .avatar-upload-row {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+        }
+
+        .avatar-preview {
+            width: 96px;
+            height: 96px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid var(--border, rgba(255, 255, 255, 0.07));
+            background: var(--card2, #191d28);
+            flex-shrink: 0;
+        }
+
+        .avatar-preview-initial {
+            width: 96px;
+            height: 96px;
+            border-radius: 50%;
+            background: var(--card2, #191d28);
+            border: 2px solid var(--border, rgba(255, 255, 255, 0.07));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--lime, #c8f04a);
+            font-family: 'Syne', sans-serif;
+            flex-shrink: 0;
+        }
+
+        .avatar-upload-zone {
+            border: 2px dashed var(--border, rgba(255, 255, 255, 0.07));
+            border-radius: 14px;
+            padding: 1rem 1.25rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            flex: 1;
+            color: var(--muted, #7a8394);
+            font-size: 0.85rem;
+        }
+
+        .avatar-upload-zone:hover {
+            border-color: var(--lime, #c8f04a);
+            background: rgba(200, 240, 74, 0.05);
+        }
+
+        .avatar-upload-zone i {
+            color: var(--lime, #c8f04a);
+            margin-right: 6px;
+        }
+
+        .sticky-actions {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--card, #13161e);
+            padding: 1rem 1.5rem;
+            border-top: 1px solid var(--border, rgba(255, 255, 255, 0.07));
+            z-index: 100;
+        }
+
+        .sticky-actions .actions-wrapper {
+            max-width: 800px;
+            margin: 0 auto;
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn-primary {
+            background: var(--lime, #c8f04a);
+            color: #0d0f14;
+            padding: 0.9rem;
+            border-radius: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            flex: 1;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.08);
+            color: var(--text, #f0f2f5);
+            padding: 0.9rem;
+            border-radius: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            border: 1px solid var(--border, rgba(255, 255, 255, 0.07));
+            flex: 1;
+            text-align: center;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .btn-primary:hover {
+            background: var(--lime2, #a8d930);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.12);
+        }
+
+        .form-spacer {
+            height: 80px;
+        }
+
+        .save-status {
+            text-align: center;
+            font-size: 0.8rem;
+            margin-bottom: 0.75rem;
+            min-height: 1rem;
+        }
+
+        .save-status.success {
+            color: var(--lime, #c8f04a);
+        }
+
+        .save-status.error {
+            color: #ef4444;
+        }
+
+        @media (max-width: 640px) {
+            .form-container {
+                padding: 1rem;
+            }
+
+            .form-card {
+                padding: 1.25rem;
+            }
+
+            .form-row,
+            .form-row-3,
+            .lifestyle-toggles {
+                grid-template-columns: 1fr;
+                gap: 0;
+            }
+
+            .avatar-upload-row {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav>
+        <div class="logo">
+            <div class="logo-dot"></div>
+            Roomie<span>Finder</span>
+        </div>
+        <ul class="nav-links">
+            <li><a href="/dashboard">Dashboard</a></li>
+            <li><a href="/listings">Listings</a></li>
+        </ul>
+        <div class="nav-auth">
+            <a href="/logout"><button class="nav-cta">Logout →</button></a>
+        </div>
+    </nav>
+
+    <div class="form-page">
+        <div class="form-container">
+            <div class="form-header">
+                <h1>👤 Your <span>RoomieFinder</span> Profile</h1>
+                <p>Room owners see this before deciding on your join request — fill it in so they have more than
+                    just your name to go on.</p>
+            </div>
+
+            <form id="profileForm" enctype="multipart/form-data">
+                <!-- Photo & Basic Info -->
+                <div class="form-card">
+                    <div class="card-title">
+                        <i class="fas fa-id-card"></i>
+                        <h2>Basic Info</h2>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Profile Photo</label>
+                        <div class="avatar-upload-row">
+                            <% if (profile.profile_photo) { %>
+                                <img src="<%= profile.profile_photo %>" id="avatarPreviewImg" class="avatar-preview"
+                                    alt="Profile photo">
+                                <% } else { %>
+                                    <div id="avatarPreviewInitial" class="avatar-preview-initial">
+                                        <%= (profile.full_name || '?').charAt(0).toUpperCase() %>
+                                    </div>
+                                    <img src="" id="avatarPreviewImg" class="avatar-preview"
+                                        style="display:none;" alt="Profile photo">
+                                    <% } %>
+                                        <div class="avatar-upload-zone" id="avatarUploadZone">
+                                            <i class="fas fa-camera"></i>Click to upload a clear photo of yourself ·
+                                            JPG/PNG · Max 5MB
+                                        </div>
+                                        <input type="file" id="avatarInput" name="profile_photo" accept="image/*"
+                                            style="display:none;">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Full Name <span style="color:#ef4444;">*</span></label>
+                        <input type="text" id="fullName" name="full_name" required
+                            value="<%= profile.full_name || '' %>">
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Age</label>
+                            <input type="number" id="age" name="age" min="16" max="100" placeholder="e.g., 21"
+                                value="<%= profile.age || '' %>">
+                        </div>
+                        <div class="form-group">
+                            <label>Gender</label>
+                            <select id="gender" name="gender">
+                                <option value="">Select</option>
+                                <option value="male" <%=profile.gender==='male' ? 'selected' : '' %>>Male</option>
+                                <option value="female" <%=profile.gender==='female' ? 'selected' : '' %>>Female
+                                </option>
+                                <option value="other" <%=profile.gender==='other' ? 'selected' : '' %>>Other</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>College/Company</label>
+                            <input type="text" id="college" name="college" placeholder="e.g., LJIET, Ahmedabad"
+                                value="<%= profile.college || '' %>">
+                        </div>
+                        <div class="form-group">
+                            <label>Company / Profession</label>
+                            <input type="text" id="profession" name="profession" placeholder="e.g., Software Intern"
+                                value="<%= profile.profession || '' %>">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Bio</label>
+                        <textarea id="bio" name="bio" rows="4" maxlength="300"
+                            placeholder="A couple lines about yourself — habits, interests, what you're looking for in a roomie..."><%= profile.bio || '' %></textarea>
+                        <div class="char-counter"><span id="bioCount">0</span>/300</div>
+                    </div>
+                </div>
+
+                <!-- Location & Budget -->
+                <div class="form-card">
+                    <div class="card-title">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <h2>Location & Budget</h2>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>City</label>
+                            <input type="text" id="city" name="city" placeholder="e.g., Ahmedabad"
+                                value="<%= profile.city || '' %>">
+                        </div>
+                        <div class="form-group">
+                            <label>Preferred Area</label>
+                            <input type="text" id="area" name="area" placeholder="e.g., Bopal"
+                                value="<%= profile.area || '' %>">
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Budget Min (₹/month)</label>
+                            <input type="number" id="budgetMin" name="budget_min" min="0" placeholder="e.g., 5000"
+                                value="<%= profile.budget_min || '' %>">
+                        </div>
+                        <div class="form-group">
+                            <label>Budget Max (₹/month)</label>
+                            <input type="number" id="budgetMax" name="budget_max" min="0" placeholder="e.g., 10000"
+                                value="<%= profile.budget_max || '' %>">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lifestyle -->
+                <div class="form-card">
+                    <div class="card-title">
+                        <i class="fas fa-mug-hot"></i>
+                        <h2>Lifestyle</h2>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Sleep Schedule</label>
+                            <select id="sleepSchedule" name="sleep_schedule">
+                                <option value="">Not specified</option>
+                                <option value="early_bird" <%=profile.sleep_schedule==='early_bird' ? 'selected' : ''
+                                    %>>Early Bird</option>
+                                <option value="night_owl" <%=profile.sleep_schedule==='night_owl' ? 'selected' : ''
+                                    %>>Night Owl</option>
+                                <option value="flexible" <%=profile.sleep_schedule==='flexible' ? 'selected' : '' %>
+                                    >Flexible</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Cleanliness</label>
+                            <select id="cleanlinessLevel" name="cleanliness_level">
+                                <option value="">Not specified</option>
+                                <option value="very_clean" <%=profile.cleanliness_level==='very_clean' ? 'selected'
+                                    : '' %>>Very Clean</option>
+                                <option value="moderate" <%=profile.cleanliness_level==='moderate' ? 'selected' : ''
+                                    %>>Moderate</option>
+                                <option value="relaxed" <%=profile.cleanliness_level==='relaxed' ? 'selected' : ''
+                                    %>>Relaxed</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="lifestyle-toggles">
+                        <div class="checkbox-wrapper">
+                            <input type="checkbox" id="smoker" <%=profile.smoker ? 'checked' : '' %>>
+                            <label for="smoker">I smoke</label>
+                        </div>
+                        <div class="checkbox-wrapper">
+                            <input type="checkbox" id="petsFriendly" <%=profile.pets_friendly ? 'checked' : '' %>>
+                            <label for="petsFriendly">I'm okay with pets</label>
+                        </div>
+                        <div class="checkbox-wrapper">
+                            <input type="checkbox" id="veg" <%=profile.veg ? 'checked' : '' %>>
+                            <label for="veg">I'm vegetarian</label>
+                        </div>
+                        <div class="checkbox-wrapper">
+                            <input type="checkbox" id="lookingForRoommate" <%=profile.looking_for_roommate!==false
+                                ? 'checked' : '' %>>
+                            <label for="lookingForRoommate">Actively looking for a roommate</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-spacer"></div>
+            </form>
+        </div>
+    </div>
+
+    <div class="sticky-actions">
+        <div class="actions-wrapper">
+            <a href="/dashboard" class="btn-secondary">Cancel</a>
+            <div style="flex:1;">
+                <div class="save-status" id="saveStatus"></div>
+                <button type="submit" form="profileForm" class="btn-primary" id="saveBtn"
+                    style="width:100%;">Save Profile →</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="/js/profile-edit.js"></script>
+</body>
+
+</html>
