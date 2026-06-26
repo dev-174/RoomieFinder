@@ -1,4 +1,4 @@
-<!--  CSS in style.css
+<!--  CSS in style.css + landing.css (landing.css restyles this page only)
       JS in main.js file
   -->
 <!DOCTYPE html>
@@ -7,403 +7,454 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Roomie Finder – Find Your Perfect Roommate</title>
+    <title>RoomieFinder – Find Your Perfect Roommate &amp; Home</title>
     <link
-        href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap"
+        href="https://fonts.goo gleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap"
         rel="stylesheet" />
     <link rel="stylesheet" href="/css/style.css">
     <link rel="stylesheet" href="/css/auth.css">
+    <link rel="stylesheet" href="/css/landing.css">
+    <!-- <link rel="stylesheet" href="../public/css/landing.css"> -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
 </head>
 
 <body>
+<div class="lp-wrap">
+
     <!-- NAV -->
-    <nav>
-        <div class="logo">
-            <div class="logo-dot"></div>
-            Roomie<span>Finder</span>
+    <nav class="lp-nav">
+        <div class="lp-brand">
+            <div class="lp-brand-mark">R</div>
+            RoomieFinder
         </div>
-        <ul class="nav-links">
-            <li><a href="#how">How it works</a></li>
-            <li><a href="#listings">Listings</a></li>
-            <li><a href="#features">Features</a></li>
+        <ul class="lp-nav-links">
+            <li><a href="/listings">Browse Rooms</a></li>
+            <li><a href="#roommates">Find Roommates</a></li>
+            <li><a href="#how">How it Works</a></li>
             <li><a href="#reviews">Reviews</a></li>
         </ul>
-        <div class="nav-auth">
+        <div class="lp-nav-auth">
 
     <% if(user) { %>
 
-        <span style="color:white; margin-right:15px;">
-            Hi, <%= user.fullname %>
-        </span>
-
+        <span class="lp-hi">Hi, <%= user.fullname %></span>
         <a href="/logout">
-            <button class="nav-cta">Logout →</button>
+            <button class="lp-btn-getstarted">Logout →</button>
         </a>
 
     <% } else { %>
 
-        <button class="nav-cta" id="openLogin">Log in →</button>
-        <button class="nav-cta" id="openRegister">Sign up →</button>
-        
+        <button class="lp-btn-signin" id="openLogin">Sign In</button>
+        <button class="lp-btn-getstarted" id="openRegister">Get Started</button>
+
     <% } %>
 
-</div>
+        </div>
     </nav>
 
     <!-- HERO -->
-    <section class="hero">
-        <div class="blob blob1"></div>
-        <div class="blob blob2"></div>
-        <div class="blob blob3"></div>
+    <section class="lp-hero">
+        <div class="reveal">
+            <div class="lp-pill">
+                <i class="fa-solid fa-people-roof"></i>
+                Over 50,000 happy roommates matched
+            </div>
 
-        <div class="badge">
-            <span class="badge-dot"></span>
-            🏡 &nbsp;Over 50,000 matches made
+            <h1 class="lp-h1">
+                Find Your Perfect<br>
+                <span class="accent">Roommate</span> &amp; Home
+            </h1>
+
+            <p class="lp-sub">
+                Browse verified listings, connect with compatible roommates, and move into a space
+                that fits your lifestyle and budget.
+            </p>
+
+            <div class="lp-searchbar">
+                <div class="lp-search-field">
+                    <i class="fa-solid fa-location-dot"></i>
+                    <input type="text" placeholder="City or neighborhood…">
+                </div>
+                <div class="lp-search-field">
+                    <i class="fa-solid fa-dollar-sign"></i>
+                    <input type="text" placeholder="Budget / mo">
+                </div>
+                <div class="lp-search-field">
+                    <i class="fa-solid fa-house"></i>
+                    <select>
+                        <option value="">Room type</option>
+                        <option value="private">Private room</option>
+                        <option value="shared">Shared room</option>
+                        <option value="studio">Studio</option>
+                    </select>
+                </div>
+                <button type="button" class="lp-search-btn"><i class="fa-solid fa-magnifying-glass"></i> Search</button>
+            </div>
+
+            <div class="lp-cta-row">
+                <a href="/listings"><button class="lp-btn-primary">Find a Room</button></a>
+                <a href="#roommates"><button class="lp-btn-secondary">Find a Roommate</button></a>
+            </div>
         </div>
 
-        <h1 class="hero-title">
-            Find Your<br>
-            <span class="accent">Perfect</span>
-            <span class="stroke">Roommate.</span>
-        </h1>
+        <div class="lp-hero-img-wrap reveal">
+            <img class="lp-hero-img" src="https://picsum.photos/seed/roomiefinder-living/900/1000.webp" alt="Modern living room interior">
 
-        <p class="hero-sub">
-            Stop scrolling Facebook groups. Roomie Finder uses smart matching to connect you with compatible roommates
-            in minutes — not weeks.
-        </p>
-
-        <div class="hero-actions">
-            <button class="btn-primary">Find My Roomie →</button>
-            <button class="btn-ghost">
-                <span class="play-icon">▶</span>
-                See How It Works
-            </button>
-        </div>
-
-        <div class="hero-stats">
-            <div>
-                <div class="stat-num">50K+</div>
-                <div class="stat-label">Happy roommates</div>
+            <div class="lp-float-card lp-float-rating">
+                <div class="lp-float-icon"><i class="fa-solid fa-star"></i></div>
+                <div>
+                    <div class="lp-float-num">4.9 / 5</div>
+                    <div class="lp-float-label">User rating</div>
+                </div>
             </div>
-            <div>
-                <div class="stat-num">200+</div>
-                <div class="stat-label">Cities covered</div>
-            </div>
-            <div>
-                <div class="stat-num">98%</div>
-                <div class="stat-label">Match accuracy</div>
+
+            <div class="lp-float-card lp-float-listings">
+                <div class="lp-float-icon"><i class="fa-solid fa-users"></i></div>
+                <div>
+                    <div class="lp-float-num">12,400+</div>
+                    <div class="lp-float-label">Active listings</div>
+                </div>
             </div>
         </div>
     </section>
-
-    <!-- SEARCH -->
-    <div class="search-section reveal">
-        <div class="search-box">
-            <div class="search-field">
-                <label>Location</label>
-                <input type="text" placeholder="Mumbai, Delhi, Bangalore…" />
-            </div>
-            <div class="search-field">
-                <label>Budget / month</label>
-                <select>
-                    <option>₹5,000 – ₹10,000</option>
-                    <option>₹10,000 – ₹20,000</option>
-                    <option>₹20,000 – ₹35,000</option>
-                    <option>₹35,000+</option>
-                </select>
-            </div>
-            <div class="search-field">
-                <label>Move-in</label>
-                <input type="text" placeholder="Jun 2025" />
-            </div>
-            <button class="search-btn">🔍</button>
-        </div>
-    </div>
 
     <!-- HOW IT WORKS -->
-    <section id="how">
-        <div class="section-tag reveal">How It Works</div>
-        <h2 class="section-title reveal">Three steps to your<br>dream room</h2>
-        <p class="section-sub reveal">No awkward cold calls. No spam. Just a smart process that respects your time.</p>
-        <div class="steps-grid">
-            <div class="step-card reveal">
-                <div class="step-number">01</div>
-                <div class="step-icon">📋</div>
-                <div class="step-title">Create your profile</div>
-                <p class="step-desc">Tell us your lifestyle, habits, budget, and what you're looking for. Takes under 3
-                    minutes.</p>
-            </div>
-            <div class="step-card reveal">
-                <div class="step-number">02</div>
-                <div class="step-icon">🤝</div>
-                <div class="step-title">Get matched</div>
-                <p class="step-desc">Our algorithm scores compatibility across 20+ factors — sleep schedule,
-                    cleanliness, pets, and more.</p>
-            </div>
-            <div class="step-card reveal">
-                <div class="step-number">03</div>
-                <div class="step-icon">🏠</div>
-                <div class="step-title">Move in together</div>
-                <p class="step-desc">Chat in-app, schedule viewings, sign agreements — all without leaving Roomie
-                    Finder.</p>
-            </div>
-            <div class="step-card reveal">
-                <div class="step-number">04</div>
-                <div class="step-icon">⭐</div>
-                <div class="step-title">Rate & review</div>
-                <p class="step-desc">After 30 days, share your experience. Honest reviews keep our community safe and
-                    trustworthy.</p>
-            </div>
-        </div>
-    </section>
-
-    <!-- LISTINGS -->
-    <section id="listings" class="listings-section">
-        <div class="listings-header">
-            <div>
-                <div class="section-tag reveal">Latest Listings</div>
-                <h2 class="section-title reveal">Hot rooms this week</h2>
-            </div>
-            <button class="btn-ghost reveal" style="cursor:none">View all listings →</button>
-        </div>
-        <div class="listings-grid">
-
-            <div class="listing-card reveal">
-                <div class="listing-img">
-                    <div class="listing-img-bg" style="background:linear-gradient(135deg,#1a2a1a,#2d4a1e)"></div>
-                    <span class="listing-emoji">🌿</span>
-                    <div class="listing-tag">Available Now</div>
-                    <div class="listing-fav">♡</div>
-                </div>
-                <div class="listing-body">
-                    <div class="listing-price">₹12,000<span>/mo</span></div>
-                    <div class="listing-name">Cosy Studio, Bandra West</div>
-                    <div class="listing-loc">📍 Mumbai, Maharashtra</div>
-                    <div class="listing-chips">
-                        <span class="chip">AC</span><span class="chip">WiFi</span><span class="chip">No pets</span>
-                    </div>
-                </div>
-                <div class="listing-footer">
-                    <div class="avatar-row">
-                        <div class="avatar">S</div>
-                        <div class="avatar" style="background:linear-gradient(135deg,var(--sky),#2a8a9a)">A</div>
-                    </div>
-                    <div class="listing-match">92% match</div>
-                </div>
+    <section id="how" class="lp-how-section">
+        <div class="container">
+            <div class="lp-section-head reveal">
+                <div class="lp-eyebrow"><i class="fa-solid fa-bolt"></i> Simple process</div>
+                <h2 class="lp-section-title">How RoomieFinder Works</h2>
+                <p class="lp-section-sub">From creating your profile to moving in — we make finding your
+                    perfect living situation easy.</p>
             </div>
 
-            <div class="listing-card reveal">
-                <div class="listing-img">
-                    <div class="listing-img-bg" style="background:linear-gradient(135deg,#1a1a2e,#16213e)"></div>
-                    <span class="listing-emoji">🌙</span>
-                    <div class="listing-tag">1 Spot Left</div>
-                    <div class="listing-fav">♡</div>
+            <div class="lp-how-grid">
+                <div class="lp-how-card reveal">
+                    <div class="lp-how-num">01</div>
+                    <div class="lp-how-arrow"><i class="fa-solid fa-chevron-right"></i></div>
+                    <div class="lp-how-icon"><i class="fa-solid fa-user-plus"></i></div>
+                    <div class="lp-how-title">Create Your Profile</div>
+                    <p class="lp-how-desc">Tell us about your lifestyle, habits, and preferences so we can
+                        match you with the right people.</p>
                 </div>
-                <div class="listing-body">
-                    <div class="listing-price">₹8,500<span>/mo</span></div>
-                    <div class="listing-name">Shared 2BHK, Koramangala</div>
-                    <div class="listing-loc">📍 Bengaluru, Karnataka</div>
-                    <div class="listing-chips">
-                        <span class="chip">Furnished</span><span class="chip">Gym</span><span class="chip">Pet OK</span>
-                    </div>
+                <div class="lp-how-card reveal">
+                    <div class="lp-how-num">02</div>
+                    <div class="lp-how-arrow"><i class="fa-solid fa-chevron-right"></i></div>
+                    <div class="lp-how-icon"><i class="fa-solid fa-magnifying-glass"></i></div>
+                    <div class="lp-how-title">Browse Listings</div>
+                    <p class="lp-how-desc">Explore verified room listings filtered by budget, location, and
+                        roommate compatibility score.</p>
                 </div>
-                <div class="listing-footer">
-                    <div class="avatar-row">
-                        <div class="avatar" style="background:linear-gradient(135deg,var(--coral),#c04040)">R</div>
-                        <div class="avatar">P</div>
-                        <div class="avatar" style="background:linear-gradient(135deg,var(--sky),#3090a0)">K</div>
-                    </div>
-                    <div class="listing-match">87% match</div>
+                <div class="lp-how-card reveal">
+                    <div class="lp-how-num">03</div>
+                    <div class="lp-how-arrow"><i class="fa-solid fa-chevron-right"></i></div>
+                    <div class="lp-how-icon"><i class="fa-solid fa-comment"></i></div>
+                    <div class="lp-how-title">Connect &amp; Chat</div>
+                    <p class="lp-how-desc">Send a message to potential roommates directly and get to know
+                        them before committing.</p>
                 </div>
-            </div>
-
-            <div class="listing-card reveal">
-                <div class="listing-img">
-                    <div class="listing-img-bg" style="background:linear-gradient(135deg,#2a1a1a,#4a2020)"></div>
-                    <span class="listing-emoji">☕</span>
-                    <div class="listing-tag">Move-in Jun</div>
-                    <div class="listing-fav">♡</div>
-                </div>
-                <div class="listing-body">
-                    <div class="listing-price">₹18,000<span>/mo</span></div>
-                    <div class="listing-name">Private Room, Hauz Khas</div>
-                    <div class="listing-loc">📍 New Delhi, NCR</div>
-                    <div class="listing-chips">
-                        <span class="chip">Bills incl.</span><span class="chip">Rooftop</span><span
-                            class="chip">Metro</span>
-                    </div>
-                </div>
-                <div class="listing-footer">
-                    <div class="avatar-row">
-                        <div class="avatar" style="background:linear-gradient(135deg,#f0a040,#c06020)">N</div>
-                    </div>
-                    <div class="listing-match">95% match</div>
-                </div>
-            </div>
-
-        </div>
-    </section>
-
-    <!-- FEATURES -->
-    <section id="features">
-        <div class="features-grid">
-            <div>
-                <div class="section-tag reveal">Why Roomie Finder</div>
-                <h2 class="section-title reveal">Built for people,<br>not just listings</h2>
-                <p class="section-sub reveal">We go beyond square footage. Compatibility is everything.</p>
-                <div class="features-list">
-                    <div class="feature-item reveal">
-                        <div class="feature-icon fi-lime">🧠</div>
-                        <div class="feature-text">
-                            <h4>Smart Compatibility Score</h4>
-                            <p>20+ lifestyle factors scored in real-time. Know your match percentage before you even say
-                                hello.</p>
-                        </div>
-                    </div>
-                    <div class="feature-item reveal">
-                        <div class="feature-icon fi-sky">🔒</div>
-                        <div class="feature-text">
-                            <h4>Verified Profiles Only</h4>
-                            <p>ID verification + social profile links. Every listing is reviewed by our safety team.</p>
-                        </div>
-                    </div>
-                    <div class="feature-item reveal">
-                        <div class="feature-icon fi-coral">💬</div>
-                        <div class="feature-text">
-                            <h4>In-App Messaging</h4>
-                            <p>Protected chat — your phone number stays private until you're comfortable sharing it.</p>
-                        </div>
-                    </div>
-                    <div class="feature-item reveal">
-                        <div class="feature-icon fi-lime">📄</div>
-                        <div class="feature-text">
-                            <h4>Digital Agreements</h4>
-                            <p>Legally backed roommate agreements created and signed in minutes, right in the app.</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <div class="phone-mockup reveal">
-                <div style="text-align:center; margin-bottom:24px;">
-                    <div style="font-family:'Syne',sans-serif; font-weight:700; font-size:0.9rem; color:var(--muted);">
-                        YOUR TOP MATCHES TODAY</div>
-                </div>
-                <div class="match-card">
-                    <div class="match-avatar">👩</div>
-                    <div class="match-info">
-                        <h5>Priya S.</h5>
-                        <p>Bandra · Night owl · Clean</p>
-                        <div class="match-bar-wrap">
-                            <div class="match-bar" style="width:96%"></div>
-                        </div>
-                    </div>
-                    <div class="match-pct">96%</div>
-                </div>
-                <div class="match-card">
-                    <div class="match-avatar">👨</div>
-                    <div class="match-info">
-                        <h5>Arjun M.</h5>
-                        <p>Andheri · Early riser · Pets</p>
-                        <div class="match-bar-wrap">
-                            <div class="match-bar" style="width:88%"></div>
-                        </div>
-                    </div>
-                    <div class="match-pct">88%</div>
-                </div>
-                <div class="match-card">
-                    <div class="match-avatar">🧑</div>
-                    <div class="match-info">
-                        <h5>Kavya R.</h5>
-                        <p>Powai · Vegetarian · Yoga</p>
-                        <div class="match-bar-wrap">
-                            <div class="match-bar" style="width:82%"></div>
-                        </div>
-                    </div>
-                    <div class="match-pct">82%</div>
-                </div>
-                <div style="text-align:center; margin-top:20px;">
-                    <button class="btn-primary" style="font-size:0.85rem; padding:12px 28px;">See all matches →</button>
+                <div class="lp-how-card reveal">
+                    <div class="lp-how-num">04</div>
+                    <div class="lp-how-icon"><i class="fa-solid fa-key"></i></div>
+                    <div class="lp-how-title">Move In</div>
+                    <p class="lp-how-desc">Finalize your arrangement, sign your lease, and settle into your
+                        new home with confidence.</p>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- TESTIMONIALS -->
-    <section id="reviews" class="testimonials-section">
-        <div class="section-tag reveal">Reviews</div>
-        <h2 class="section-title reveal">They found their people.</h2>
-        <div class="testi-grid">
-            <div class="testi-card reveal">
-                <div class="testi-stars">★★★★★</div>
-                <p class="testi-text">"Found my roommate within 3 days of signing up. The compatibility score was spot
-                    on — we literally have the same sleep schedule."</p>
-                <div class="testi-author">
-                    <div class="testi-avatar">👩‍💻</div>
-                    <div>
-                        <div class="testi-name">Sneha Kulkarni</div>
-                        <div class="testi-role">Software Engineer, Pune</div>
+    <!-- FEATURED LISTINGS -->
+    <section id="listings">
+        <div class="container">
+            <div class="lp-row-head">
+                <div class="lp-section-head lp-left reveal">
+                    <div class="lp-eyebrow lp-text-only">Rooms &amp; Apartments</div>
+                    <h2 class="lp-section-title">Featured Listings</h2>
+                </div>
+                <a href="/listings" class="lp-view-link reveal">View all listings →</a>
+            </div>
+
+            <div class="lp-cards-row">
+                <div class="lp-listing-card reveal">
+                    <div class="lp-card-img-wrap">
+                        <img src="https://picsum.photos/seed/roomiefinder-room1/500/400.webp" alt="Bright room in modern flat">
+                        <div class="lp-card-tag">Available Now</div>
+                        <button class="lp-card-fav listing-fav">♡</button>
+                    </div>
+                    <div class="lp-card-body">
+                        <div class="lp-card-title-row">
+                            <div class="lp-card-title">Bright Room in Modern Flat</div>
+                            <div class="lp-card-price">$780<span>/mo</span></div>
+                        </div>
+                        <div class="lp-card-loc"><i class="fa-solid fa-location-dot"></i> Brooklyn, NY</div>
+                        <div class="lp-card-room"><i class="fa-solid fa-bed"></i> 1 private room</div>
+                        <div class="lp-card-chips">
+                            <span class="lp-chip">Utilities included</span>
+                            <span class="lp-chip">Non-smoker</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lp-listing-card reveal">
+                    <div class="lp-card-img-wrap">
+                        <img src="https://picsum.photos/seed/roomiefinder-room2/500/400.webp" alt="Cozy loft near campus">
+                        <div class="lp-card-tag">From Aug 1</div>
+                        <button class="lp-card-fav listing-fav">♡</button>
+                    </div>
+                    <div class="lp-card-body">
+                        <div class="lp-card-title-row">
+                            <div class="lp-card-title">Cozy Loft Near Campus</div>
+                            <div class="lp-card-price">$650<span>/mo</span></div>
+                        </div>
+                        <div class="lp-card-loc"><i class="fa-solid fa-location-dot"></i> Austin, TX</div>
+                        <div class="lp-card-room"><i class="fa-solid fa-bed"></i> 1 shared room</div>
+                        <div class="lp-card-chips">
+                            <span class="lp-chip">Student-friendly</span>
+                            <span class="lp-chip">Pet-friendly</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lp-listing-card reveal">
+                    <div class="lp-card-img-wrap">
+                        <img src="https://picsum.photos/seed/roomiefinder-room3/500/400.webp" alt="Sunny studio in midtown">
+                        <div class="lp-card-tag">Available Now</div>
+                        <button class="lp-card-fav listing-fav">♡</button>
+                    </div>
+                    <div class="lp-card-body">
+                        <div class="lp-card-title-row">
+                            <div class="lp-card-title">Sunny Studio in Midtown</div>
+                            <div class="lp-card-price">$1,100<span>/mo</span></div>
+                        </div>
+                        <div class="lp-card-loc"><i class="fa-solid fa-location-dot"></i> Chicago, IL</div>
+                        <div class="lp-card-room"><i class="fa-solid fa-bed"></i> 1 studio</div>
+                        <div class="lp-card-chips">
+                            <span class="lp-chip">Gym access</span>
+                            <span class="lp-chip">Rooftop</span>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="testi-card reveal">
-                <div class="testi-stars">★★★★★</div>
-                <p class="testi-text">"As a student moving to Delhi alone, I was terrified. Roomie Finder's verification
-                    process gave me confidence. My roommate is now my best friend."</p>
-                <div class="testi-author">
-                    <div class="testi-avatar">🧑‍🎓</div>
-                    <div>
-                        <div class="testi-name">Rahul Sharma</div>
-                        <div class="testi-role">MBA Student, Delhi</div>
+        </div>
+    </section>
+
+    <!-- ROOMMATE PROFILES -->
+    <section id="roommates">
+        <div class="container">
+            <div class="lp-row-head">
+                <div class="lp-section-head lp-left reveal">
+                    <div class="lp-eyebrow lp-text-only">Roommate Profiles</div>
+                    <h2 class="lp-section-title">Find Compatible Roommates</h2>
+                </div>
+                <a href="#roommates" class="lp-view-link reveal">Browse all profiles →</a>
+            </div>
+
+            <div class="lp-roommates-row">
+                <div class="lp-profile-card reveal">
+                    <div class="lp-profile-top">
+                        <div class="lp-profile-id">
+                            <div class="lp-avatar-circle">SK</div>
+                            <div>
+                                <div class="lp-profile-name">Sarah Kim</div>
+                                <div class="lp-profile-role">UX Designer</div>
+                            </div>
+                        </div>
+                        <div class="lp-match-badge">94% match</div>
+                    </div>
+                    <div class="lp-profile-meta">
+                        <div><i class="fa-solid fa-location-dot"></i> San Francisco, CA</div>
+                        <div><i class="fa-solid fa-dollar-sign"></i> $900–$1,200</div>
+                    </div>
+                    <div class="lp-profile-tags">
+                        <span class="lp-chip">Early bird</span>
+                        <span class="lp-chip">Vegetarian</span>
+                        <span class="lp-chip">Neat</span>
+                    </div>
+                    <button class="lp-btn-view-profile">View Profile</button>
+                </div>
+
+                <div class="lp-profile-card reveal">
+                    <div class="lp-profile-top">
+                        <div class="lp-profile-id">
+                            <div class="lp-avatar-circle">ML</div>
+                            <div>
+                                <div class="lp-profile-name">Marcus Lee</div>
+                                <div class="lp-profile-role">Software Engineer</div>
+                            </div>
+                        </div>
+                        <div class="lp-match-badge">88% match</div>
+                    </div>
+                    <div class="lp-profile-meta">
+                        <div><i class="fa-solid fa-location-dot"></i> Austin, TX</div>
+                        <div><i class="fa-solid fa-dollar-sign"></i> $700–$1,000</div>
+                    </div>
+                    <div class="lp-profile-tags">
+                        <span class="lp-chip">Night owl</span>
+                        <span class="lp-chip">Gamer</span>
+                        <span class="lp-chip">Non-smoker</span>
+                    </div>
+                    <button class="lp-btn-view-profile">View Profile</button>
+                </div>
+
+                <div class="lp-profile-card reveal">
+                    <div class="lp-profile-top">
+                        <div class="lp-profile-id">
+                            <div class="lp-avatar-circle">ET</div>
+                            <div>
+                                <div class="lp-profile-name">Elena Torres</div>
+                                <div class="lp-profile-role">Graduate Student</div>
+                            </div>
+                        </div>
+                        <div class="lp-match-badge">91% match</div>
+                    </div>
+                    <div class="lp-profile-meta">
+                        <div><i class="fa-solid fa-location-dot"></i> Chicago, IL</div>
+                        <div><i class="fa-solid fa-dollar-sign"></i> $600–$850</div>
+                    </div>
+                    <div class="lp-profile-tags">
+                        <span class="lp-chip">Quiet</span>
+                        <span class="lp-chip">Book lover</span>
+                        <span class="lp-chip">Vegan</span>
+                    </div>
+                    <button class="lp-btn-view-profile">View Profile</button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- TESTIMONIALS / STORIES -->
+    <section id="reviews" class="lp-stories-section">
+        <div class="container">
+            <div class="lp-section-head reveal">
+                <div class="lp-eyebrow"><i class="fa-regular fa-heart"></i> Real stories</div>
+                <h2 class="lp-section-title">Thousands Found Their Match</h2>
+                <p class="lp-section-sub">Don't take our word for it — here's what our community says.</p>
+            </div>
+
+            <div class="lp-testi-row">
+                <div class="lp-testi-card reveal">
+                    <div class="lp-stars">★★★★★</div>
+                    <p class="lp-testi-text">"I found my roommate in less than a week! The compatibility
+                        matching is genuinely impressive — we have so much in common."</p>
+                    <div class="lp-testi-author">
+                        <div class="lp-testi-avatar">AS</div>
+                        <div>
+                            <div class="lp-testi-name">Anika Sharma</div>
+                            <div class="lp-testi-role">Grad Student, Boston</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="lp-testi-card reveal">
+                    <div class="lp-stars">★★★★★</div>
+                    <p class="lp-testi-text">"RoomieFinder saved me so much time. The filters are spot-on
+                        and I never had to deal with sketchy listings."</p>
+                    <div class="lp-testi-author">
+                        <div class="lp-testi-avatar">JH</div>
+                        <div>
+                            <div class="lp-testi-name">Jordan Hayes</div>
+                            <div class="lp-testi-role">Software Dev, Seattle</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="lp-testi-card reveal">
+                    <div class="lp-stars">★★★★★</div>
+                    <p class="lp-testi-text">"Moving to a new city was scary, but finding a roommate
+                        through here made it feel so much easier. Highly recommend."</p>
+                    <div class="lp-testi-author">
+                        <div class="lp-testi-avatar">MW</div>
+                        <div>
+                            <div class="lp-testi-name">Mei-Ling Wu</div>
+                            <div class="lp-testi-role">Marketing Manager, NYC</div>
+                        </div>
                     </div>
                 </div>
             </div>
-            <div class="testi-card reveal">
-                <div class="testi-stars">★★★★☆</div>
-                <p class="testi-text">"Way better than any Facebook group or OLX post. The in-app chat saved my number
-                    from random strangers. 10/10 would recommend."</p>
-                <div class="testi-author">
-                    <div class="testi-avatar">👩</div>
-                    <div>
-                        <div class="testi-name">Divya Nair</div>
-                        <div class="testi-role">UX Designer, Bengaluru</div>
-                    </div>
+
+            <div class="lp-stats-row">
+                <div class="lp-stat-card reveal">
+                    <div class="lp-stat-num">50,000+</div>
+                    <div class="lp-stat-label">Successful matches</div>
+                </div>
+                <div class="lp-stat-card reveal">
+                    <div class="lp-stat-num">120 cities</div>
+                    <div class="lp-stat-label">Across the US</div>
+                </div>
+                <div class="lp-stat-card reveal">
+                    <div class="lp-stat-num">4.9★</div>
+                    <div class="lp-stat-label">Average rating</div>
+                </div>
+                <div class="lp-stat-card reveal">
+                    <div class="lp-stat-num">&lt; 7 days</div>
+                    <div class="lp-stat-label">Avg. time to match</div>
                 </div>
             </div>
         </div>
     </section>
 
     <!-- CTA -->
-    <section class="cta-section">
-        <div class="section-tag reveal" style="display:inline-block">Get Early Access</div>
-        <h2 class="section-title reveal">Your perfect roomie<br>is one click away.</h2>
-        <p class="section-sub reveal">Join 50,000+ people who've already found their match. It's free to sign up.</p>
-        <div class="cta-email reveal">
-            <input type="email" class="email-input" placeholder="your@email.com" />
-            <button class="btn-primary">Join for free →</button>
+    <section style="padding: 90px 0;">
+        <div class="lp-cta-band reveal">
+            <div>
+                <h2>Ready to Find Your Perfect Home?</h2>
+                <p>Join over 50,000 people who found their ideal living situation.</p>
+            </div>
+            <div class="lp-cta-buttons">
+                <a href="/listings"><button class="lp-btn-white">Find a Room</button></a>
+                <a href="#roommates"><button class="lp-btn-outline-white">Find a Roommate</button></a>
+            </div>
         </div>
-        <p style="color:var(--muted);font-size:0.8rem;margin-top:18px;" class="reveal">No spam. No credit card.
-            Unsubscribe anytime.</p>
     </section>
 
     <!-- FOOTER -->
-    <footer>
-        <div class="logo" style="font-size:1.1rem">
-            <div class="logo-dot"></div>
-            Roomie<span>Finder</span>
+    <footer class="lp-footer">
+        <div class="container">
+            <div class="lp-footer-grid">
+                <div class="lp-footer-brand">
+                    <div class="lp-brand">
+                        <div class="lp-brand-mark">R</div>
+                        RoomieFinder
+                    </div>
+                    <p class="lp-footer-tagline">Helping people find compatible roommates and shared living
+                        spaces since 2020.</p>
+                </div>
+                <div class="lp-footer-col">
+                    <h5>Product</h5>
+                    <a href="/listings">Browse Rooms</a>
+                    <a href="#roommates">Find Roommates</a>
+                    <a href="#how">How It Works</a>
+                    <a href="#reviews">Reviews</a>
+                </div>
+                <div class="lp-footer-col">
+                    <h5>Company</h5>
+                    <a href="#">About Us</a>
+                    <a href="#">Blog</a>
+                    <a href="#">Careers</a>
+                    <a href="#">Contact</a>
+                </div>
+                <div class="lp-footer-col">
+                    <h5>Legal</h5>
+                    <a href="#">Privacy Policy</a>
+                    <a href="#">Terms of Service</a>
+                    <a href="#">Cookie Policy</a>
+                </div>
+            </div>
+            <div class="lp-footer-bottom">
+                <div class="lp-footer-copy">© 2026 RoomieFinder. All rights reserved.</div>
+                <div class="lp-footer-socials">
+                    <a href="#">𝕏</a>
+                    <a href="#">in</a>
+                    <a href="#">ig</a>
+                </div>
+            </div>
         </div>
-        <div class="footer-socials">
-            <a href="#" class="social-btn">𝕏</a>
-            <a href="#" class="social-btn">in</a>
-            <a href="#" class="social-btn">ig</a>
-        </div>
-        <div class="footer-copy">© 2025 Roomie Finder. All rights reserved.</div>
     </footer>
+
+</div>
 
 <%- include('auth/login') %>
 <%- include('auth/register') %>
-    
+
     <script src="/js/main.js"></script>
 </body>
 
