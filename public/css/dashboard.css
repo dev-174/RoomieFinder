@@ -2,6 +2,8 @@
 .dashboard-container {
     padding-top: 100px;
     min-height: 100vh;
+        font-family: 'DM Sans', sans-serif;
+
 }
 
 .dashboard-wrapper {
@@ -21,7 +23,8 @@
 }
 
 .welcome-card h1 {
-    font-family: 'Syne', sans-serif;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 700;
     font-size: 2rem;
     margin-bottom: 12px;
 }
@@ -73,7 +76,8 @@
 }
 
 .dashboard-card h3 {
-    font-family: 'Syne', sans-serif;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 700;
     font-size: 1.2rem;
     margin-bottom: 20px;
     display: flex;
@@ -81,8 +85,8 @@
     gap: 10px;
 }
 
-/* Listing & Match Items */
-.listing-item, .match-item {
+/* Listing Items */
+.listing-item {
     padding: 14px 0;
     border-bottom: 1px solid var(--border);
     display: flex;
@@ -90,16 +94,16 @@
     align-items: center;
 }
 
-.listing-item:last-child, .match-item:last-child {
+.listing-item:last-child {
     border-bottom: none;
 }
 
-.listing-title, .match-name {
+.listing-title {
     font-weight: 600;
     margin-bottom: 4px;
 }
 
-.listing-location, .match-location {
+.listing-location {
     font-size: 0.75rem;
     color: var(--muted);
 }
@@ -107,12 +111,6 @@
 .listing-rent {
     color: var(--lime);
     font-weight: 700;
-}
-
-.match-score {
-    color: var(--lime);
-    font-weight: 700;
-    font-size: 1.1rem;
 }
 
 /* My Listing Details */
@@ -238,7 +236,7 @@
     border-radius: 50%;
     background: var(--card2);
     color: var(--lime);
-    font-family: 'Syne', sans-serif;
+    font-family: 'DM Sans', sans-serif;
     font-weight: 700;
     display: flex;
     align-items: center;
@@ -297,7 +295,7 @@
     border-radius: 50%;
     background: var(--card2);
     color: var(--lime);
-    font-family: 'Syne', sans-serif;
+    font-family: 'DM Sans', sans-serif;
     font-weight: 700;
     font-size: 1.8rem;
     display: flex;
@@ -308,7 +306,8 @@
 }
 
 .profile-modal-header h2 {
-    font-family: 'Syne', sans-serif;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 700;
     font-size: 1.3rem;
     margin-bottom: 4px;
 }
@@ -516,22 +515,21 @@
     overflow-y: auto;
 }
 
-.modal-content::-webkit-scrollbar {
-    width: 6px;
+::-webkit-scrollbar {
+    width: 7px;
 }
 
-.modal-content::-webkit-scrollbar-track {
-    background: var(--border);
-    border-radius: 3px;
+::-webkit-scrollbar-track {
+    background: transparent;
 }
 
-.modal-content::-webkit-scrollbar-thumb {
-    background: var(--lime);
-    border-radius: 3px;
+::-webkit-scrollbar-thumb {
+    background: rgba(0,0,0,0.18);
+    border-radius: 100px;
 }
 
-.modal-content::-webkit-scrollbar-thumb:hover {
-    background: var(--lime2);
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(0,0,0,0.32);
 }
 
 .close {

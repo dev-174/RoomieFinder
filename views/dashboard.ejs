@@ -250,39 +250,7 @@
                                     <% } %>
                 </div>
 
-                <!-- Recent Matches -->
-                <div class="dashboard-card">
-                    <h3><i class="fas fa-users"></i> Recent Matches</h3>
-                    <% if(matches && matches.length> 0) { %>
-                        <% matches.forEach(function(match) { %>
-                            <div class="match-item" data-id="<%= match.id %>">
-                                <div>
-                                    <div class="match-name">
-                                        <%= match.full_name %>
-                                    </div>
-                                    <div class="match-location">
-                                        <%= match.city %>
-                                    </div>
-                                    <div class="match-details">
-                                        <% if(match.profession) { %>
-                                            <i class="fas fa-briefcase"></i>
-                                            <%= match.profession %>
-                                                <% } %>
-                                    </div>
-                                </div>
-                                <div class="match-score">
-                                    <%= match.score %>%
-                                </div>
-                            </div>
-                            <% }); %>
-                                <% } else { %>
-                                    <div class="empty-state">
-                                        <i class="fas fa-user-friends"></i>
-                                        <p>No matches yet</p>
-                                        <a href="/profile/edit" class="btn-sm">Complete Profile →</a>
-                                    </div>
-                                    <% } %>
-                </div>
+
             </div>
         </div>
     </div>
