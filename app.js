@@ -230,31 +230,7 @@ app.get('/dashboard', authenticate, async (req, res) => {
         const exploreListingsResult = await db.query(exploreListingsQuery, [userId]);
 
         const exploreListings = exploreListingsResult.rows;
-        // Get potential matches (users looking for roommates)
-        const matchesQuery = `
-            SELECT u.id, u.full_name, u.city, u.profession, u.age,
-                   u.budget_min, u.budget_max, u.looking_for_roommate
-            FROM users u
-            WHERE u.id != $1 
-              AND u.looking_for_roommate = true
-              AND u.city IS NOT NULL
-            ORDER BY RANDOM()
-            LIMIT 5
-        `;
-        const matchesResult = await db.query(matchesQuery, [userId]);
-
-        // Calculate match scores
-        const userProfile = await db.query(
-            `SELECT city, budget_min, budget_max FROM users WHERE id = $1`,
-            [userId]
-        );
-
-        const matches = matchesResult.rows.map(match => {
-            let score = 70;
-            if (userProfile.rows[0] && match.city === userProfile.rows[0].city) score += 10;
-            return { ...match, score: Math.min(score, 99) };
-        });
-        // Add this inside the dashboard route, after the matches query
+        // Recent Matches feature removed
         const myRequestsQuery = `
     SELECT rr.id, rr.status, rr.created_at,
            l.title as listing_title, l.city, l.rent, l.id as listing_id
@@ -295,7 +271,6 @@ app.get('/dashboard', authenticate, async (req, res) => {
             myListings: myListings,
             savedListings: savedListings,
             exploreListings: exploreListings,
-            matches: matches,
             hasActiveListing: hasActiveListing,
             myRequests: myRequests,
             sentRequestsMap: sentRequestsMap,
